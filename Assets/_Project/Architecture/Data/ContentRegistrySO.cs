@@ -16,6 +16,12 @@ namespace QLDMathApp.Architecture.Data
         [Tooltip("Complete list of all MathProblemSO assets")]
         [SerializeField] private List<MathProblemSO> allProblems = new List<MathProblemSO>();
 
+        public IReadOnlyList<MathProblemSO> AllProblems => allProblems;
+        
+#if UNITY_EDITOR 
+        public List<MathProblemSO> Editor_AllProblems => allProblems; 
+#endif
+
         /// <summary>
         /// Get all problems for a specific skill.
         /// </summary>

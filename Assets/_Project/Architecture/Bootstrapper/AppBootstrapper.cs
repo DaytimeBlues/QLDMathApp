@@ -33,7 +33,7 @@ namespace QLDMathApp.Architecture.Bootstrapper
 
             // Data warmup (optional)
             if (contentRegistry != null)
-                Debug.Log($"[AppBootstrapper] Registry Loaded: {contentRegistry.allProblems.Count} problems.");
+                Debug.Log($"[AppBootstrapper] Registry Loaded: {contentRegistry.AllProblems.Count} problems.");
 
             yield return null;
 

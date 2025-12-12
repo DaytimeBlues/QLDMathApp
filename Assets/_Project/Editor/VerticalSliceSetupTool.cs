@@ -75,9 +75,9 @@ namespace QLDMathApp.Editor
                     AssetDatabase.CreateAsset(problem, problemPath);
                 }
 
-                if (!registry.allProblems.Contains(problem))
+                if (!registry.Editor_AllProblems.Contains(problem))
                 {
-                    registry.allProblems.Add(problem);
+                    registry.Editor_AllProblems.Add(problem);
                 }
             }
             EditorUtility.SetDirty(registry);
