@@ -31,7 +31,7 @@ namespace QLDMathApp.UI
         
         [Header("Close Button")]
         [SerializeField] private Button closeButton;
-        [SerializeField] private MainMenuController mainMenu;
+        // [SerializeField] private MainMenuController mainMenu; // Decoupled for Vertical Slice
 
         [Header("Styling")]
         [SerializeField] private Color onColor = new Color(0.4f, 0.8f, 0.4f);
@@ -140,14 +140,8 @@ namespace QLDMathApp.UI
 
         private void OnClosePressed()
         {
-            if (mainMenu != null)
-            {
-                mainMenu.CloseSettings();
-            }
-            else
-            {
-                gameObject.SetActive(false);
-            }
+            // Simple disable for now
+            gameObject.SetActive(false);
         }
     }
 }
