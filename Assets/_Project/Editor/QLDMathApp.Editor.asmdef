@@ -4,7 +4,8 @@
     "references": [
         "QLDMathApp.Architecture",
         "QLDMathApp.Modules",
-        "QLDMathApp.Testing"
+        "QLDMathApp.Testing",
+        "QLDMathApp.UI"
     ],
     "includePlatforms": [
         "Editor"

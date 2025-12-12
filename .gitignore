@@ -15,10 +15,10 @@
 *.pdb.meta
 *.mdb.meta
 
-# Unity3D generated meta files
+# Unity3D generated debug files (NOT .meta - those MUST be tracked!)
 *.pidb
 *.unitypackage
-*.meta
+# *.meta - DO NOT IGNORE! Unity needs these for asset references
 
 # Unity3D Generated File On Crash Reports
 sysinfo.txt
