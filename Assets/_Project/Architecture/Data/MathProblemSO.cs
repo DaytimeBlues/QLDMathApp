@@ -22,6 +22,18 @@ namespace QLDMathApp.Architecture.Data
     }
 
     /// <summary>
+    /// Visual pattern type for subitising (Deep Research 1).
+    /// </summary>
+    public enum PatternType
+    {
+        Dice,
+        TenFrame,
+        Fingers,
+        Irregular,
+        Line
+    }
+
+    /// <summary>
     /// Internal skill identifiers - independent of curriculum codes.
     /// Use these for progression logic; map to curriculum codes for reporting.
     /// </summary>
@@ -64,6 +76,8 @@ namespace QLDMathApp.Architecture.Data
 
         [Header("Content")]
         public string questionId; // e.g., "SUB_LVL1_001"
+        [Range(0.5f, 5.0f)] public float flashDuration = 2.0f; // New: Flash mechanic
+        public PatternType visualPattern = PatternType.Dice;   // New: Pattern type
         public int correctValue;
         public List<int> distractorValues;
 
@@ -74,6 +88,7 @@ namespace QLDMathApp.Architecture.Data
         public Sprite visualHint;
 
         [Header("Assets")]
+        public AudioClip instructionAudio; // New: Mandatory for pre-readers
         public AudioClip questionAudio; // e.g., "How many fireflies?"
         public Sprite targetVisual;     // e.g., Firefly sprite
 
