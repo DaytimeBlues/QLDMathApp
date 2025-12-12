@@ -47,6 +47,8 @@ namespace QLDMathApp.Modules.Subitising
                            new Vector2(-0.5f, -0.6f), new Vector2(0.5f, -0.6f) },
         };
 
+        public int CurrentCount => _spawnedFireflies.Count;
+
         public void SpawnFireflies(int count)
         {
             ClearFireflies();

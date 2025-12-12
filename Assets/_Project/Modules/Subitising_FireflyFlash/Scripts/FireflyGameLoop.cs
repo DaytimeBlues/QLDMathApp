@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using QLDMathApp.Architecture.Audio;
 using QLDMathApp.Architecture.Data;
 using QLDMathApp.Architecture.Events;
+using QLDMathApp.Modules.Subitising; // Correct Namespace
 using UnityEngine.SceneManagement;
 
 namespace QLDMathApp.Modules.FireflyFlash
