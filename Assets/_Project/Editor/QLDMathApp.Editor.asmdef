@@ -1,0 +1,20 @@
+{
+    "name": "QLDMathApp.Editor",
+    "rootNamespace": "QLDMathApp.Editor",
+    "references": [
+        "QLDMathApp.Architecture",
+        "QLDMathApp.Modules",
+        "QLDMathApp.Testing"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

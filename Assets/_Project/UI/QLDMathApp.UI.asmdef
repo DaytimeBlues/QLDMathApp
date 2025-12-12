@@ -1,0 +1,17 @@
+{
+    "name": "QLDMathApp.UI",
+    "rootNamespace": "QLDMathApp.UI",
+    "references": [
+        "QLDMathApp.Architecture",
+        "QLDMathApp.Modules"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
