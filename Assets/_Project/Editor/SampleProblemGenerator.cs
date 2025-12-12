@@ -27,7 +27,8 @@ namespace QLDMathApp.Editor
                 problem.questionId = $"SUB_001_{i}";
                 problem.correctValue = i;
                 problem.distractorValues = GenerateDistractors(i, 1, 5, 2);
-                problem.curriculumStandard = CurriculumTag.AC9M1N02_Subitising;
+                problem.curriculumCode = CurriculumCode.AC9MFN02;
+                problem.skillId = SkillId.SUBITISE_1_TO_5;
                 problem.difficultyRating = (i - 1) * 0.2f;
                 
                 string path = PROBLEMS_PATH + $"Subitising/SUB_001_{i}.asset";
@@ -51,7 +52,8 @@ namespace QLDMathApp.Editor
                 problem.questionId = $"COUNT_001_{i}";
                 problem.correctValue = i;
                 problem.distractorValues = new List<int>(); // No distractors for counting
-                problem.curriculumStandard = CurriculumTag.AC9M1N01_Counting;
+                problem.curriculumCode = CurriculumCode.AC9MFN01;
+                problem.skillId = i <= 5 ? SkillId.COUNT_1_TO_5 : SkillId.COUNT_1_TO_10;
                 problem.difficultyRating = (i - 1) * 0.1f;
                 
                 string path = PROBLEMS_PATH + $"Counting/COUNT_001_{i}.asset";
