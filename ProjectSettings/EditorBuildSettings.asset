@@ -4,6 +4,15 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/_Project/Scenes/_Bootstrap.unity
+    guid: 59bef2ea071a9c24289dd1a9176c7807
+  - enabled: 1
+    path: Assets/_Project/Scenes/MainMenu.unity
+    guid: e3af043ecf22ed54bb8534dbdd3b1751
+  - enabled: 1
+    path: Assets/_Project/Scenes/FireflyFlash.unity
+    guid: 6c42619eaf57f4243a80669e79c8a061
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

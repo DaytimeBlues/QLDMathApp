@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 217edaf9e0eb3874aafdeaaf7bb41bd1, type: 3}
+  m_Name: ContentRegistry
+  m_EditorClassIdentifier: QLDMathApp.Architecture::QLDMathApp.Architecture.Data.ContentRegistrySO
+  allProblems:
+  - {fileID: 11400000, guid: 90051eb245ab00c4780e9d2744939c5b, type: 2}
+  - {fileID: 11400000, guid: b8125a5e1e326114a95daead42ef37e4, type: 2}
+  - {fileID: 11400000, guid: e60a982073ba2934f9e733a21741cb6e, type: 2}
+  - {fileID: 11400000, guid: 279d1d4d4c85ce34d97b238d523c4545, type: 2}
+  - {fileID: 11400000, guid: d6526394040b0d64cafc881224824e39, type: 2}
