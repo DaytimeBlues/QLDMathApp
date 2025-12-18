@@ -5,13 +5,15 @@ using System;
 namespace QLDMathApp.Modules.Counting
 {
     /// <summary>
-    /// Draggable food item for Lunchbox Packer.
-    /// Large touch target, smooth drag, snap-back on miss.
-    /// Implements one-to-one correspondence through physical manipulation.
+    /// NERV SUPPLY MODULE: Draggable module for Entry Plug Supply.
+    /// Large touch target, smooth drag, tactical snap-back on mission failure.
     /// </summary>
     [RequireComponent(typeof(CanvasGroup))]
     public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
+        [Header("NERV Theme")]
+        [SerializeField] private Architecture.UI.NERVTheme theme;
+
         [Header("Settings")]
         [SerializeField] private float dragScale = 1.2f;
         [SerializeField] private float snapBackSpeed = 10f;
@@ -29,8 +31,8 @@ namespace QLDMathApp.Modules.Counting
         private bool _isDragging;
         private Vector3 _originalScale;
         
-        public event Action<DraggableItem> OnDroppedInLunchbox;
-        public event Action<DraggableItem> OnDroppedOutside;
+        public event Action<DraggableItem> OnConnectionEstablished; // Renamed from OnDroppedInLunchbox
+        public event Action<DraggableItem> OnConnectionFailed;    // Renamed from OnDroppedOutside
 
         private void Awake()
         {
@@ -96,27 +98,27 @@ namespace QLDMathApp.Modules.Counting
                 _audioSource.PlayOneShot(dropSound);
             }
             
-            // Check if dropped on lunchbox
+            // Check if dropped on Entry Plug
             var results = new System.Collections.Generic.List<RaycastResult>();
             EventSystem.current.RaycastAll(eventData, results);
             
-            bool droppedInLunchbox = false;
+            bool connectedToPlug = false;
             foreach (var result in results)
             {
                 if (result.gameObject.GetComponent<LunchboxSlot>() != null)
                 {
-                    droppedInLunchbox = true;
+                    connectedToPlug = true;
                     break;
                 }
             }
             
-            if (droppedInLunchbox)
+            if (connectedToPlug)
             {
-                OnDroppedInLunchbox?.Invoke(this);
+                OnConnectionEstablished?.Invoke(this);
             }
             else
             {
-                OnDroppedOutside?.Invoke(this);
+                OnConnectionFailed?.Invoke(this);
             }
         }
 

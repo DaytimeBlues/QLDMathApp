@@ -26,6 +26,11 @@ namespace QLDMathApp.Architecture.Events
         public static Action OnPlaySuccessFeedback;
         public static Action OnPlayCorrectionFeedback;
         #endregion
+
+        #region Evangelion Thermal Events
+        // Param: Sync Rate (0.0 to 1.0)
+        public static Action<float> OnSyncRateChanged;
+        #endregion
     }
 
     public enum GameState

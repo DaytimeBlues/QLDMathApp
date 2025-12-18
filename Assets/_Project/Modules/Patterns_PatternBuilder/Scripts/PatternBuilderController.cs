@@ -8,37 +8,41 @@ using QLDMathApp.Architecture.Events;
 namespace QLDMathApp.Modules.Patterns
 {
     /// <summary>
-    /// PATTERN BUILDER: Pattern recognition game (AC9M1A01 - Algebra).
-    /// "What comes next in the pattern?"
-    /// Child identifies and extends repeating patterns (ABAB, AABB, ABC).
+    /// SYNC SEQUENCE: Pattern building game (re-themed).
+    /// "Complete the synchronization waveform!"
+    /// Child copies and continues patterns to stabilize pilot sync.
     /// </summary>
     public class PatternBuilderController : MonoBehaviour
     {
-        [Header("References")]
-        [SerializeField] private Transform patternDisplayArea;
-        [SerializeField] private Transform choiceArea;
+        [Header("NERV Theme")]
+        [SerializeField] private NERVTheme theme;
+
+        [Header("Sync References")]
+        [SerializeField] private Transform sequenceArea; // Renamed from patternDisplayArea
+        [SerializeField] private Transform waveformOptions; // Renamed from choiceArea
         [SerializeField] private AudioSource audioSource;
-        [SerializeField] private Animator characterAnimator;
+        [SerializeField] private Animator technicianAnimator; // Renamed from characterAnimator (Nerv Technician)
 
         [Header("Prefabs")]
-        [SerializeField] private PatternPiece piecePrefab;
+        [SerializeField] private PatternPiece waveformPrefab; // Renamed from piecePrefab
 
-        [Header("Pattern Types")]
-        [SerializeField] private Sprite[] shapeSprites; // Circle, Square, Triangle, Star
-        [SerializeField] private Color[] patternColors; // Red, Blue, Yellow, Green
+        [Header("Waveform Assets")]
+        [SerializeField] private Sprite[] syncSignals; // Renamed from shapeSprites (Circle -> Pulse, Square -> Block, etc.)
+        [SerializeField] private Color[] signalColors; // Renamed from patternColors
 
-        private List<PatternPiece> _displayedPattern = new List<PatternPiece>();
-        private List<PatternPiece> _choicePieces = new List<PatternPiece>();
-        private int _correctAnswerIndex;
+        private List<PatternPiece> _displayedWaveform = new List<PatternPiece>();
+        private List<PatternPiece> _choiceWaveforms = new List<PatternPiece>();
+        private int _correctSignalIndex;
         private PatternType _currentPatternType;
         private float _roundStartTime;
+        private float _currentSyncIntegrity = 50.0f;
 
         public enum PatternType
         {
-            AB,     // Red, Blue, Red, Blue, ?
-            ABB,    // Red, Blue, Blue, Red, Blue, Blue, ?
-            ABC,    // Red, Blue, Yellow, Red, Blue, Yellow, ?
-            AABB    // Red, Red, Blue, Blue, Red, Red, ?
+            AB,     // Sync Signal A, B, A, B, ?
+            ABB,    // Signal A, B, B, A, B, B, ?
+            ABC,    // Signal A, B, C, A, B, C, ?
+            AABB    // Signal A, A, B, B, A, A, ?
         }
 
         private void OnEnable()
@@ -54,24 +58,25 @@ namespace QLDMathApp.Modules.Patterns
         public void StartRound(MathProblemSO problem, PatternType patternType)
         {
             _currentPatternType = patternType;
-            ClearPattern();
+            ClearWaveform();
             
             // Generate pattern based on type
             int[] pattern = GeneratePattern(patternType, problem.correctValue);
             
             // Display pattern with last element hidden
-            DisplayPattern(pattern);
+            DisplayWaveform(pattern);
             
             // Create choice buttons
-            CreateChoices(pattern[pattern.Length - 1]);
+            CreateWaveformChoices(pattern[pattern.Length - 1]);
             
-            // Play instruction
+            // Play instruction: "Stabilize the synchronization waveform!"
             if (problem.questionAudio != null)
             {
                 audioSource.PlayOneShot(problem.questionAudio);
             }
             
             _roundStartTime = Time.time;
+            EventBus.OnSyncRateChanged?.Invoke(_currentSyncIntegrity / 100f);
         }
 
         private int[] GeneratePattern(PatternType type, int seed)
@@ -79,53 +84,51 @@ namespace QLDMathApp.Modules.Patterns
             switch (type)
             {
                 case PatternType.AB:
-                    return new int[] { 0, 1, 0, 1, 0, 1, 0 }; // Last is 1
+                    return new int[] { 0, 1, 0, 1, 0, 1, 0 }; 
                 case PatternType.ABB:
-                    return new int[] { 0, 1, 1, 0, 1, 1, 0 }; // Last is 1
+                    return new int[] { 0, 1, 1, 0, 1, 1, 0 }; 
                 case PatternType.ABC:
-                    return new int[] { 0, 1, 2, 0, 1, 2, 0 }; // Last is 1
+                    return new int[] { 0, 1, 2, 0, 1, 2, 0 }; 
                 case PatternType.AABB:
-                    return new int[] { 0, 0, 1, 1, 0, 0, 1 }; // Last is 1
+                    return new int[] { 0, 0, 1, 1, 0, 0, 1 }; 
                 default:
                     return new int[] { 0, 1, 0, 1, 0 };
             }
         }
 
-        private void DisplayPattern(int[] pattern)
+        private void DisplayWaveform(int[] pattern)
         {
             float spacing = 80f;
-            float startX = -(pattern.Length - 2) * spacing / 2f; // -1 for hidden piece
+            float startX = -(pattern.Length - 2) * spacing / 2f; 
 
-            for (int i = 0; i < pattern.Length - 1; i++) // Don't show last
+            for (int i = 0; i < pattern.Length - 1; i++) 
             {
-                PatternPiece piece = Instantiate(piecePrefab, patternDisplayArea);
+                PatternPiece piece = Instantiate(waveformPrefab, sequenceArea);
                 piece.SetupDisplay(
-                    shapeSprites[0], // Use same shape, different colors
-                    patternColors[pattern[i]],
+                    syncSignals[0], 
+                    signalColors[pattern[i]],
                     i
                 );
                 piece.GetComponent<RectTransform>().anchoredPosition = 
                     new Vector2(startX + i * spacing, 0);
-                _displayedPattern.Add(piece);
+                _displayedWaveform.Add(piece);
             }
 
             // Add mystery slot at the end
-            PatternPiece mysterySlot = Instantiate(piecePrefab, patternDisplayArea);
+            PatternPiece mysterySlot = Instantiate(waveformPrefab, sequenceArea);
             mysterySlot.SetupMystery();
             mysterySlot.GetComponent<RectTransform>().anchoredPosition = 
                 new Vector2(startX + (pattern.Length - 1) * spacing, 0);
-            _displayedPattern.Add(mysterySlot);
+            _displayedWaveform.Add(mysterySlot);
 
-            _correctAnswerIndex = pattern[pattern.Length - 1];
+            _correctSignalIndex = pattern[pattern.Length - 1];
         }
 
-        private void CreateChoices(int correctIndex)
+        private void CreateWaveformChoices(int correctIndex)
         {
-            // Create 3 choices (correct + 2 distractors)
             List<int> choices = new List<int> { correctIndex };
             
-            // Add distractors
-            for (int i = 0; i < patternColors.Length && choices.Count < 3; i++)
+            for (int i = 0; i < signalColors.Length && choices.Count < 3; i++)
             {
                 if (i != correctIndex)
                 {
@@ -147,26 +150,25 @@ namespace QLDMathApp.Modules.Patterns
 
             for (int i = 0; i < choices.Count; i++)
             {
-                PatternPiece piece = Instantiate(piecePrefab, choiceArea);
+                PatternPiece piece = Instantiate(waveformPrefab, waveformOptions);
                 piece.SetupChoice(
-                    shapeSprites[0],
-                    patternColors[choices[i]],
+                    syncSignals[0],
+                    signalColors[choices[i]],
                     choices[i]
                 );
                 piece.GetComponent<RectTransform>().anchoredPosition = 
                     new Vector2(startX + i * spacing, 0);
                 piece.OnSelected += HandleChoiceSelected;
-                _choicePieces.Add(piece);
+                _choiceWaveforms.Add(piece);
             }
         }
 
         private void HandleChoiceSelected(PatternPiece piece)
         {
             float responseTime = (Time.time - _roundStartTime) * 1000f;
-            bool isCorrect = piece.ValueIndex == _correctAnswerIndex;
+            bool isCorrect = piece.ValueIndex == _correctSignalIndex;
 
-            // Disable all choices
-            foreach (var p in _choicePieces)
+            foreach (var p in _choiceWaveforms)
             {
                 p.SetInteractable(false);
             }
@@ -175,20 +177,21 @@ namespace QLDMathApp.Modules.Patterns
 
             if (isCorrect)
             {
-                StartCoroutine(CorrectSequence(piece));
+                StartCoroutine(SuccessSequence(piece));
             }
             else
             {
-                StartCoroutine(IncorrectSequence());
+                StartCoroutine(FailureSequence());
             }
         }
 
-        private IEnumerator CorrectSequence(PatternPiece selectedPiece)
+        private IEnumerator SuccessSequence(PatternPiece selectedPiece)
         {
+            _currentSyncIntegrity = Mathf.Min(100f, _currentSyncIntegrity + 10.0f);
+            EventBus.OnSyncRateChanged?.Invoke(_currentSyncIntegrity / 100f);
             EventBus.OnPlaySuccessFeedback?.Invoke();
 
-            // Move selected piece to mystery slot
-            PatternPiece mysterySlot = _displayedPattern[_displayedPattern.Count - 1];
+            PatternPiece mysterySlot = _displayedWaveform[_displayedWaveform.Count - 1];
             Vector3 targetPos = mysterySlot.transform.position;
 
             float duration = 0.5f;
@@ -200,38 +203,37 @@ namespace QLDMathApp.Modules.Patterns
                 yield return null;
             }
 
-            // Replace mystery with actual piece
-            mysterySlot.RevealAs(shapeSprites[0], patternColors[_correctAnswerIndex]);
+            mysterySlot.RevealAs(syncSignals[0], signalColors[_correctSignalIndex]);
 
-            if (characterAnimator != null)
+            if (technicianAnimator != null)
             {
-                characterAnimator.SetTrigger("Celebrate");
+                technicianAnimator.SetTrigger("SyncConfirmed");
             }
 
             yield return new WaitForSeconds(1.5f);
-            Debug.Log("[PatternBuilder] Round Complete - Correct!");
+            Debug.Log("[SyncSequence] Waveform Stabilized.");
         }
 
-        private IEnumerator IncorrectSequence()
+        private IEnumerator FailureSequence()
         {
+            _currentSyncIntegrity = Mathf.Max(0f, _currentSyncIntegrity - 15.0f);
+            EventBus.OnSyncRateChanged?.Invoke(_currentSyncIntegrity / 100f);
             EventBus.OnPlayCorrectionFeedback?.Invoke();
 
-            // EXPLANATORY FEEDBACK: Highlight the pattern rhythm
-            yield return HighlightPatternSequence();
+            yield return HighlightWaveformSequence();
 
-            if (characterAnimator != null)
+            if (technicianAnimator != null)
             {
-                characterAnimator.SetTrigger("Think");
+                technicianAnimator.SetTrigger("SyncError");
             }
 
             yield return new WaitForSeconds(1f);
-            Debug.Log("[PatternBuilder] Round Complete - Scaffolded.");
+            Debug.Log("[SyncSequence] MAGI Intervention required.");
         }
 
-        private IEnumerator HighlightPatternSequence()
+        private IEnumerator HighlightWaveformSequence()
         {
-            // Pulse through the pattern to show the rhythm
-            foreach (var piece in _displayedPattern)
+            foreach (var piece in _displayedWaveform)
             {
                 if (!piece.IsMystery)
                 {
@@ -245,19 +247,19 @@ namespace QLDMathApp.Modules.Patterns
         {
             if (type == InterventionType.ShowDemo)
             {
-                StartCoroutine(HighlightPatternSequence());
+                StartCoroutine(HighlightWaveformSequence());
             }
         }
 
-        private void ClearPattern()
+        private void ClearWaveform()
         {
-            foreach (var piece in _displayedPattern)
+            foreach (var piece in _displayedWaveform)
             {
                 if (piece != null) Destroy(piece.gameObject);
             }
-            _displayedPattern.Clear();
+            _displayedWaveform.Clear();
 
-            foreach (var piece in _choicePieces)
+            foreach (var piece in _choiceWaveforms)
             {
                 if (piece != null)
                 {
@@ -265,7 +267,7 @@ namespace QLDMathApp.Modules.Patterns
                     Destroy(piece.gameObject);
                 }
             }
-            _choicePieces.Clear();
+            _choiceWaveforms.Clear();
         }
     }
 }

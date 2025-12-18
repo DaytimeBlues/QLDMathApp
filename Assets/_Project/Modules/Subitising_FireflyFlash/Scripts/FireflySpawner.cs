@@ -5,13 +5,13 @@ using System.Collections.Generic;
 namespace QLDMathApp.Modules.Subitising
 {
     /// <summary>
-    /// Spawns fireflies in the jar using:
+    /// ANGEL VISUALIZER: Spawns Angel patterns in the interception field.
     /// - Standard dice patterns (Level 1 - aids subitising)
     /// - Random positions (Level 2 - tests true subitising)
     /// </summary>
     public class FireflySpawner : MonoBehaviour
     {
-        [Header("References")]
+        [Header("NERV Mission References")]
         [SerializeField] private GameObject fireflyPrefab;
         [SerializeField] private Transform jarContainer;
         [SerializeField] private Transform countingFingerPrefab;

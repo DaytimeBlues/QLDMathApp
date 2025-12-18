@@ -6,140 +6,143 @@ using QLDMathApp.Architecture.Events;
 namespace QLDMathApp.Modules.Hub
 {
     /// <summary>
-    /// HUB MAP: Adventure-style navigation screen.
-    /// Implements spatial reasoning (ACARA) through map navigation.
-    /// Children track their avatar moving through the world.
+    /// NERV TACTICAL DISPLAY: GeoFront map navigation screen.
+    /// Implements spatial reasoning (ACARA) through tactical map navigation.
+    /// Children track their Eva Unit moving through Tokyo-3.
     /// </summary>
     public class HubMapController : MonoBehaviour
     {
-        [Header("References")]
-        [SerializeField] private Transform avatarTransform;
-        [SerializeField] private List<MapNode> mapNodes;
+        [Header("NERV Theme")]
+        [SerializeField] private NERVTheme theme;
+
+        [Header("Tactical Display References")]
+        [SerializeField] private Transform evaUnitTransform; // Renamed from avatarTransform
+        [SerializeField] private List<MapNode> tacticalSectors; // Renamed from mapNodes
         [SerializeField] private AudioSource audioSource;
         
-        [Header("Avatar Animation")]
-        [SerializeField] private float avatarMoveSpeed = 2f;
+        [Header("Eva Unit Animation")]
+        [SerializeField] private float moveSpeed = 2f;
         [SerializeField] private AnimationCurve moveCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         
-        [Header("Audio")]
-        [SerializeField] private AudioClip nodeUnlockSound;
-        [SerializeField] private AudioClip avatarWalkSound;
+        [Header("Audio (NERV Alerts)")]
+        [SerializeField] private AudioClip sectorUnlockSound;
+        [SerializeField] private AudioClip evaMovementSound;
         
-        private MapNode _currentNode;
+        private MapNode _currentSector;
         private bool _isMoving;
 
         private void Start()
         {
-            InitializeMap();
+            InitializeTacticalMap();
         }
 
-        private void InitializeMap()
+        private void InitializeTacticalMap()
         {
-            // Load progress from DataService
-            int unlockedLevel = PlayerPrefs.GetInt("UnlockedLevel", 1);
+            // Load progress from DataService (MAGI)
+            int unlockedSector = PlayerPrefs.GetInt("UnlockedLevel", 1);
             
-            for (int i = 0; i < mapNodes.Count; i++)
+            for (int i = 0; i < tacticalSectors.Count; i++)
             {
-                bool isUnlocked = i < unlockedLevel;
-                bool isCurrent = i == unlockedLevel - 1;
+                bool isUnlocked = i < unlockedSector;
+                bool isCurrent = i == unlockedSector - 1;
                 
-                mapNodes[i].Initialize(i + 1, isUnlocked, isCurrent);
-                mapNodes[i].OnNodeSelected += HandleNodeSelected;
+                tacticalSectors[i].Initialize(i + 1, isUnlocked, isCurrent);
+                tacticalSectors[i].OnNodeSelected += HandleSectorSelected;
             }
             
-            // Position avatar at current node
-            if (unlockedLevel > 0 && unlockedLevel <= mapNodes.Count)
+            // Position Eva Unit at current sector
+            if (unlockedSector > 0 && unlockedSector <= tacticalSectors.Count)
             {
-                _currentNode = mapNodes[unlockedLevel - 1];
-                avatarTransform.position = _currentNode.AvatarPosition;
+                _currentSector = tacticalSectors[unlockedSector - 1];
+                evaUnitTransform.position = _currentSector.AvatarPosition;
             }
         }
 
-        private void HandleNodeSelected(MapNode node)
+        private void HandleSectorSelected(MapNode node)
         {
             if (_isMoving) return;
             if (!node.IsUnlocked) return;
             
-            if (node == _currentNode)
+            if (node == _currentSector)
             {
-                // Tap on current node = start activity
-                LaunchActivity(node);
+                // Tap on current node = start interception (activity)
+                LaunchInterception(node);
             }
             else
             {
-                // Move avatar to new node
-                StartCoroutine(MoveAvatarToNode(node));
+                // Move Eva Unit to new sector
+                StartCoroutine(MoveEvaToSector(node));
             }
         }
 
-        private System.Collections.IEnumerator MoveAvatarToNode(MapNode targetNode)
+        private System.Collections.IEnumerator MoveEvaToSector(MapNode targetSector)
         {
             _isMoving = true;
             
-            if (avatarWalkSound != null)
+            if (evaMovementSound != null)
             {
-                audioSource.clip = avatarWalkSound;
+                audioSource.clip = evaMovementSound;
                 audioSource.loop = true;
                 audioSource.Play();
             }
             
-            Vector3 startPos = avatarTransform.position;
-            Vector3 endPos = targetNode.AvatarPosition;
+            Vector3 startPos = evaUnitTransform.position;
+            Vector3 endPos = targetSector.AvatarPosition;
             float distance = Vector3.Distance(startPos, endPos);
-            float duration = distance / avatarMoveSpeed;
+            float duration = distance / moveSpeed;
             
             for (float t = 0; t < duration; t += Time.deltaTime)
             {
                 float progress = moveCurve.Evaluate(t / duration);
-                avatarTransform.position = Vector3.Lerp(startPos, endPos, progress);
+                evaUnitTransform.position = Vector3.Lerp(startPos, endPos, progress);
                 yield return null;
             }
             
-            avatarTransform.position = endPos;
+            evaUnitTransform.position = endPos;
             audioSource.Stop();
             
-            _currentNode = targetNode;
+            _currentSector = targetSector;
             _isMoving = false;
         }
 
-        private void LaunchActivity(MapNode node)
+        private void LaunchInterception(MapNode node)
         {
-            Debug.Log($"[Hub] Launching activity: {node.ActivitySceneName}");
+            Debug.Log($"[NERV] Initiating interception at {node.ActivitySceneName}");
             
-            // Store current node for return
+            // Store current sector for return
             PlayerPrefs.SetInt("LastNodeIndex", node.NodeIndex);
             
-            // Load the activity scene
+            // Load the interception scene
             UnityEngine.SceneManagement.SceneManager.LoadScene(node.ActivitySceneName);
         }
 
         /// <summary>
-        /// Called when an activity is completed to unlock next node.
+        /// Called when an interception is successful to unlock next sector.
         /// </summary>
-        public void UnlockNextNode()
+        public void UnlockNextSector()
         {
             int currentUnlocked = PlayerPrefs.GetInt("UnlockedLevel", 1);
-            int nextLevel = currentUnlocked + 1;
+            int nextSector = currentUnlocked + 1;
             
-            if (nextLevel <= mapNodes.Count)
+            if (nextSector <= tacticalSectors.Count)
             {
-                PlayerPrefs.SetInt("UnlockedLevel", nextLevel);
+                PlayerPrefs.SetInt("UnlockedLevel", nextSector);
                 
-                MapNode newNode = mapNodes[nextLevel - 1];
+                MapNode newNode = tacticalSectors[nextSector - 1];
                 newNode.PlayUnlockAnimation();
                 
-                if (nodeUnlockSound != null)
+                if (sectorUnlockSound != null)
                 {
-                    audioSource.PlayOneShot(nodeUnlockSound);
+                    audioSource.PlayOneShot(sectorUnlockSound);
                 }
             }
         }
 
         private void OnDestroy()
         {
-            foreach (var node in mapNodes)
+            foreach (var node in tacticalSectors)
             {
-                node.OnNodeSelected -= HandleNodeSelected;
+                node.OnNodeSelected -= HandleSectorSelected;
             }
         }
     }

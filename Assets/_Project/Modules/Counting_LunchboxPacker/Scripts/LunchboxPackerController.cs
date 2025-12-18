@@ -8,29 +8,32 @@ using QLDMathApp.Architecture.Events;
 namespace QLDMathApp.Modules.Counting
 {
     /// <summary>
-    /// LUNCHBOX PACKER: Counting game (AC9M1N01).
-    /// "Pack 3 strawberries for the kangaroo!"
-    /// Child drags items to lunchbox, practicing one-to-one correspondence.
+    /// ENTRY PLUG SUPPLY: Counting game (re-themed).
+    /// "Supply 3 modules for the Entry Plug!"
+    /// Child drags items to Entry Plug, practicing one-to-one correspondence.
     /// </summary>
     public class LunchboxPackerController : MonoBehaviour
     {
-        [Header("References")]
-        [SerializeField] private Transform itemSpawnArea;
-        [SerializeField] private LunchboxSlot lunchbox;
+        [Header("NERV Theme")]
+        [SerializeField] private NERVTheme theme;
+
+        [Header("Supply References")]
+        [SerializeField] private Transform supplySpawnArea; // Renamed from itemSpawnArea
+        [SerializeField] private LunchboxSlot entryPlug; // Renamed from lunchbox
         [SerializeField] private AudioSource audioSource;
-        [SerializeField] private Image characterImage; // The kangaroo
-        [SerializeField] private Animator characterAnimator;
+        [SerializeField] private Image operatorImage; // Renamed from characterImage (Nerv Operator)
+        [SerializeField] private Animator operatorAnimator;
         
         [Header("Prefabs")]
-        [SerializeField] private DraggableItem[] foodPrefabs; // strawberry, apple, banana, etc.
+        [SerializeField] private DraggableItem[] supplyPrefabs; // Power modules, battery, LCL, etc.
         
-        [Header("Settings")]
-        [SerializeField] private int maxItemsToSpawn = 8; // More than needed for distraction
+        [Header("Mission Settings")]
+        [SerializeField] private int maxSuppliesAvailable = 8;
         
         private MathProblemSO _currentProblem;
         private int _targetCount;
-        private int _packedCount;
-        private List<DraggableItem> _spawnedItems = new List<DraggableItem>();
+        private int _suppliedCount;
+        private List<DraggableItem> _spawnedModules = new List<DraggableItem>();
         private float _roundStartTime;
 
         private void OnEnable()
@@ -47,96 +50,92 @@ namespace QLDMathApp.Modules.Counting
         {
             _currentProblem = problem;
             _targetCount = problem.correctValue;
-            _packedCount = 0;
+            _suppliedCount = 0;
             
-            ClearItems();
-            SpawnItems();
+            ClearSupplies();
+            SpawnSupplies();
             
-            // Play instruction: "Pack 3 strawberries for Kanga!"
+            // Play instruction: "Initialize 3 power modules for EVA-01!"
             if (problem.questionAudio != null)
             {
                 audioSource.PlayOneShot(problem.questionAudio);
             }
             
-            // Character looks expectant
-            if (characterAnimator != null)
+            // Operator monitoring
+            if (operatorAnimator != null)
             {
-                characterAnimator.SetTrigger("Waiting");
+                operatorAnimator.SetTrigger("Monitoring");
             }
             
             _roundStartTime = Time.time;
-            lunchbox.ResetSlots(_targetCount);
+            entryPlug.ResetSlots(_targetCount);
         }
 
-        private void SpawnItems()
+        private void SpawnSupplies()
         {
-            if (foodPrefabs.Length == 0) return;
+            if (supplyPrefabs.Length == 0) return;
             
-            // Spawn target items + distractors
-            DraggableItem prefab = foodPrefabs[Random.Range(0, foodPrefabs.Length)];
+            // Spawn target modules + distractors
+            DraggableItem prefab = supplyPrefabs[Random.Range(0, supplyPrefabs.Length)];
             
-            for (int i = 0; i < maxItemsToSpawn; i++)
+            for (int i = 0; i < maxSuppliesAvailable; i++)
             {
                 Vector3 spawnPos = GetRandomSpawnPosition();
-                DraggableItem item = Instantiate(prefab, spawnPos, Quaternion.identity, itemSpawnArea);
-                item.OnDroppedInLunchbox += HandleItemPacked;
-                item.OnDroppedOutside += HandleItemDroppedOutside;
-                _spawnedItems.Add(item);
+                DraggableItem item = Instantiate(prefab, spawnPos, Quaternion.identity, supplySpawnArea);
+                item.OnConnectionEstablished += HandleModuleSupplied; // Renamed from OnDroppedInLunchbox
+                item.OnConnectionFailed += HandleModuleDroppedOutside; // Renamed from OnDroppedOutside
+                _spawnedModules.Add(item);
             }
         }
 
         private Vector3 GetRandomSpawnPosition()
         {
-            // Scatter items in the spawn area
             float x = Random.Range(-2f, 2f);
             float y = Random.Range(-1f, 1f);
-            return itemSpawnArea.position + new Vector3(x, y, 0);
+            return supplySpawnArea.position + new Vector3(x, y, 0);
         }
 
-        private void HandleItemPacked(DraggableItem item)
+        private void HandleModuleSupplied(DraggableItem item)
         {
-            _packedCount++;
+            _suppliedCount++;
             
-            // Play count audio: "One!", "Two!", etc.
-            // (Would use NumberAudioService here)
-            Debug.Log($"[Lunchbox] Packed: {_packedCount}");
+            Debug.Log($"[NERV] Module {_suppliedCount} initialized.");
             
-            // Visual: Item settles into lunchbox slot
-            lunchbox.AcceptItem(item, _packedCount - 1);
+            // Visual: Module locks into Entry Plug slot
+            entryPlug.AcceptItem(item, _suppliedCount - 1);
             
-            // Check if done
-            if (_packedCount >= _targetCount)
+            // Check if mission objective met
+            if (_suppliedCount >= _targetCount)
             {
-                StartCoroutine(CompleteRound());
+                StartCoroutine(CompleteSupplyMission());
             }
         }
 
-        private void HandleItemDroppedOutside(DraggableItem item)
+        private void HandleModuleDroppedOutside(DraggableItem item)
         {
-            // Return to original position (no penalty, safe failure)
             item.ReturnToStart();
         }
 
-        private IEnumerator CompleteRound()
+        private IEnumerator CompleteSupplyMission()
         {
             yield return new WaitForSeconds(0.3f);
             
             float responseTime = (Time.time - _roundStartTime) * 1000f;
             
-            // SUCCESS!
+            // MISSION SUCCESS
             EventBus.OnAnswerAttempted?.Invoke(true, responseTime);
             EventBus.OnPlaySuccessFeedback?.Invoke();
             
-            // Character celebrates
-            if (characterAnimator != null)
+            // Sync Rate Feedback
+            EventBus.OnSyncRateChanged?.Invoke(0.85f); // Example sync rate
+
+            if (operatorAnimator != null)
             {
-                characterAnimator.SetTrigger("Happy");
+                operatorAnimator.SetTrigger("AllClear");
             }
             
-            // Play "Thank you!" or "Yummy!"
             yield return new WaitForSeconds(2f);
-            
-            Debug.Log("[Lunchbox] Round complete!");
+            Debug.Log("[NERV] Supply mission complete. EVA-01 active.");
         }
 
         private void HandleIntervention(InterventionType type)
@@ -150,38 +149,38 @@ namespace QLDMathApp.Modules.Counting
         private IEnumerator PlayDemoSequence()
         {
             // EXPLANATORY FEEDBACK: Show how to pack items
-            Debug.Log("[Lunchbox] Playing demo...");
+            Debug.Log("[NERV] Playing demo...");
             
-            // Highlight the lunchbox
-            lunchbox.Highlight(true);
+            // Highlight the Entry Plug
+            entryPlug.Highlight(true);
             
-            // Animate one item moving to lunchbox
-            if (_spawnedItems.Count > 0)
+            // Animate one item moving to plug
+            if (_spawnedModules.Count > 0)
             {
-                var demoItem = _spawnedItems[0];
-                yield return demoItem.AnimateDemoMove(lunchbox.GetSlotPosition(0));
+                var demoItem = _spawnedModules[0];
+                yield return demoItem.AnimateDemoMove(entryPlug.GetSlotPosition(0));
             }
             
-            lunchbox.Highlight(false);
+            entryPlug.Highlight(false);
             
             // Reset for player to try
-            ClearItems();
-            SpawnItems();
-            _packedCount = 0;
+            ClearSupplies();
+            SpawnSupplies();
+            _suppliedCount = 0;
         }
 
-        private void ClearItems()
+        private void ClearSupplies()
         {
-            foreach (var item in _spawnedItems)
+            foreach (var item in _spawnedModules)
             {
                 if (item != null)
                 {
-                    item.OnDroppedInLunchbox -= HandleItemPacked;
-                    item.OnDroppedOutside -= HandleItemDroppedOutside;
+                    item.OnConnectionEstablished -= HandleModuleSupplied;
+                    item.OnConnectionFailed -= HandleModuleDroppedOutside;
                     Destroy(item.gameObject);
                 }
             }
-            _spawnedItems.Clear();
+            _spawnedModules.Clear();
         }
     }
 }

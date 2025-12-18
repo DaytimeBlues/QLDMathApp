@@ -6,23 +6,24 @@ using System;
 namespace QLDMathApp.Modules.Subitising
 {
     /// <summary>
-    /// NEO-SKEUOMORPHIC BUTTON: Tactile, 3D-style button for young children.
-    /// - Large touch target (60x60 minimum)
-    /// - Visual "press down" effect
-    /// - Audio feedback on touch
+    /// NERV TERMINAL BUTTON: Tactile, high-tech button for pilot input.
+    /// - Neon green borders
+    /// - Digital glitch feedback
+    /// - Audio feedback with NERV chimes
     /// </summary>
     [RequireComponent(typeof(Button))]
     public class AnswerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
+        [Header("NERV Theme")]
+        [SerializeField] private Architecture.UI.NERVTheme theme;
+
         [Header("UI")]
         [SerializeField] private Text numberText;
         [SerializeField] private Image buttonImage;
-        [SerializeField] private Image shadowImage;
+        [SerializeField] private Image outlineImage; // Renamed from shadowImage
         
-        [Header("Neo-Skeuomorphic Settings")]
-        [SerializeField] private float pressOffset = 4f; // Pixels to move down on press
-        [SerializeField] private Color normalColor = new Color(0.95f, 0.85f, 0.7f); // Clay/cream
-        [SerializeField] private Color pressedColor = new Color(0.85f, 0.75f, 0.6f);
+        [Header("High-Tech Settings")]
+        [SerializeField] private float pressOffset = 2f; 
         
         [Header("Audio")]
         [SerializeField] private AudioClip tapSound;
@@ -50,10 +51,16 @@ namespace QLDMathApp.Modules.Subitising
             _value = value;
             numberText.text = value.ToString();
             
-            // Reset visual state
-            buttonImage.color = normalColor;
+            // Apply NERV Theme
+            if (theme != null)
+            {
+                buttonImage.color = new Color(0.1f, 0.1f, 0.1f, theme.panelAlpha);
+                if (outlineImage != null) outlineImage.color = theme.hexBorderColor;
+                numberText.color = theme.terminalTextColor;
+            }
+            
             _rectTransform.anchoredPosition = _originalPosition;
-            if (shadowImage != null) shadowImage.enabled = true;
+            if (outlineImage != null) outlineImage.enabled = true;
         }
 
         public void SetInteractable(bool interactable)
@@ -61,37 +68,35 @@ namespace QLDMathApp.Modules.Subitising
             _button.interactable = interactable;
         }
 
-        // IPointerDownHandler - Immediate tactile feedback
         public void OnPointerDown(PointerEventData eventData)
         {
             if (!_button.interactable) return;
             
-            // Visual: Push down effect (like a real button)
             _rectTransform.anchoredPosition = _originalPosition - new Vector2(0, pressOffset);
-            buttonImage.color = pressedColor;
             
-            // Hide shadow when "pressed in"
-            if (shadowImage != null) shadowImage.enabled = false;
+            if (theme != null)
+                buttonImage.color = theme.syncGreen;
             
-            // Audio feedback
+            if (outlineImage != null) outlineImage.enabled = false;
+            
             if (tapSound != null && _audioSource != null)
             {
                 _audioSource.PlayOneShot(tapSound, 0.5f);
             }
             
-            // Haptic feedback (requires mobile plugin)
             #if UNITY_ANDROID || UNITY_IOS
-            Handheld.Vibrate(); // Simple vibration
+            Handheld.Vibrate();
             #endif
         }
 
-        // IPointerUpHandler - Return to normal
         public void OnPointerUp(PointerEventData eventData)
         {
-            // Visual: Pop back up
             _rectTransform.anchoredPosition = _originalPosition;
-            buttonImage.color = normalColor;
-            if (shadowImage != null) shadowImage.enabled = true;
+            
+            if (theme != null)
+                buttonImage.color = new Color(0.1f, 0.1f, 0.1f, theme.panelAlpha);
+                
+            if (outlineImage != null) outlineImage.enabled = true;
         }
 
         private void HandleClick()

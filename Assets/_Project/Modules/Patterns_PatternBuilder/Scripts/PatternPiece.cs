@@ -6,12 +6,15 @@ using System;
 namespace QLDMathApp.Modules.Patterns
 {
     /// <summary>
-    /// Individual pattern piece - can be display or choice.
-    /// Neo-Skeuomorphic with pulse animation for feedback.
+    /// SYNC SIGNAL WAVEFORM: Individual signal block for Sync Ratio Sequence.
+    /// Digital transitions and glitch chimes.
     /// </summary>
     [RequireComponent(typeof(Button))]
     public class PatternPiece : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
+        [Header("NERV Theme")]
+        [SerializeField] private Architecture.UI.NERVTheme theme;
+
         [Header("UI")]
         [SerializeField] private Image shapeImage;
         [SerializeField] private Image backgroundImage;
@@ -118,23 +121,16 @@ namespace QLDMathApp.Modules.Patterns
 
         private System.Collections.IEnumerator PulseAnimation()
         {
-            // Scale up
+            // Digital "Glitch" Pulse
             Vector3 targetScale = _originalScale * pulseScale;
-            for (float t = 0; t < pulseDuration / 2; t += Time.deltaTime)
-            {
-                transform.localScale = Vector3.Lerp(_originalScale, targetScale, t / (pulseDuration / 2));
-                shapeImage.color = Color.Lerp(_originalColor, Color.white, t / (pulseDuration / 2));
-                yield return null;
-            }
+            float duration = theme != null ? theme.glitchDuration : pulseDuration;
+            
+            // Pulse up (Instant jump)
+            transform.localScale = targetScale;
+            if (theme != null) shapeImage.color = theme.syncGreen;
+            yield return new WaitForSeconds(duration / 2);
 
-            // Scale down
-            for (float t = 0; t < pulseDuration / 2; t += Time.deltaTime)
-            {
-                transform.localScale = Vector3.Lerp(targetScale, _originalScale, t / (pulseDuration / 2));
-                shapeImage.color = Color.Lerp(Color.white, _originalColor, t / (pulseDuration / 2));
-                yield return null;
-            }
-
+            // Back to normal
             transform.localScale = _originalScale;
             shapeImage.color = _originalColor;
         }

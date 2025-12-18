@@ -5,8 +5,8 @@ using System.Collections.Generic;
 namespace QLDMathApp.Modules.Subitising
 {
     /// <summary>
-    /// Manages the answer buttons (Neo-Skeuomorphic tactile design).
-    /// Large touch targets (min 60x60 units) for 5-year-old motor skills.
+    /// NERV TERMINAL GROUP: Manages high-tech pilot response terminals.
+    /// Large touch targets (min 60x60 units) for steady pilot input.
     /// </summary>
     public class AnswerButtonGroup : MonoBehaviour
     {
