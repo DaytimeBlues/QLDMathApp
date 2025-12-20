@@ -2,7 +2,8 @@
     "name": "QLDMathApp.Modules",
     "rootNamespace": "QLDMathApp.Modules",
     "references": [
-        "QLDMathApp.Architecture"
+        "QLDMathApp.Architecture",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

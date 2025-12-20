@@ -3,7 +3,8 @@
     "rootNamespace": "QLDMathApp.UI",
     "references": [
         "QLDMathApp.Architecture",
-        "QLDMathApp.Modules"
+        "QLDMathApp.Modules",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
