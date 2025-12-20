@@ -186,4 +186,3 @@ namespace QLDMathApp.Modules.Counting
         }
     }
 }
-}
