@@ -14,47 +14,67 @@ namespace QLDMathApp.Bootstrap
         [SerializeField] private ContentRegistrySO contentRegistry;
         [SerializeField] private string mainMenuSceneName = "MainMenu";
 
+        public static System.Action OnServicesReady;
+
         private IEnumerator Start()
         {
             if (_booted) yield break;
             _booted = true;
 
-            DontDestroyOnLoad(gameObject); // Keep the bootstrap root alive if desired.
+            DontDestroyOnLoad(gameObject);
+            Debug.Log("[AppBootstrapper] Initializing Core Systems...");
 
-            Debug.Log("[AppBootstrapper] Initializing Services...");
-
-            // Audio system
-            if (AudioQueueService.Instance == null)
+            // 1. Persistence (Sync/Async ready)
+            var persistence = Object.FindFirstObjectByType<QLDMathApp.Architecture.Services.PersistenceService>();
+            if (persistence == null)
             {
-                var audioObj = new GameObject("AudioQueueService");
-                DontDestroyOnLoad(audioObj); // Critical if you LoadScene(Single).
-                audioObj.AddComponent<AudioQueueService>();
+                var persistObj = new GameObject("PersistenceService");
+                persistence = persistObj.AddComponent<QLDMathApp.Architecture.Services.PersistenceService>();
             }
+            yield return persistence.Initialize();
 
-            // Enchanted Forest Mastery systems
-            if (Object.FindFirstObjectByType<QLDMathApp.Architecture.Managers.GardenGrowthManager>() == null)
-            {
-                var growObj = new GameObject("GardenGrowthManager");
-                DontDestroyOnLoad(growObj);
-                growObj.AddComponent<QLDMathApp.Architecture.Managers.GardenGrowthManager>();
-            }
+            // 2. Adaptive Mastery & Helper Systems
+            var gardenManager = CreateService<QLDMathApp.Architecture.Managers.GardenGrowthManager>("GardenGrowthManager");
+            var helperSystem = CreateService<QLDMathApp.Modules.Magi.NatureHelperSystem>("NatureHelperSystem");
+            var session = CreateService<QLDMathApp.Architecture.Managers.SessionManager>("SessionManager");
+            var accessibility = CreateService<QLDMathApp.Architecture.UI.AccessibilitySettings>("AccessibilitySettings");
 
-            if (Object.FindFirstObjectByType<QLDMathApp.Modules.Magi.NatureHelperSystem>() == null)
-            {
-                var guideObj = new GameObject("NatureHelperSystem");
-                DontDestroyOnLoad(guideObj);
-                guideObj.AddComponent<QLDMathApp.Modules.Magi.NatureHelperSystem>();
-            }
+            // Initialize in parallel
+            yield return gardenManager.Initialize();
+            yield return helperSystem.Initialize();
+            yield return session.Initialize();
+            yield return accessibility.Initialize();
 
-            // Data warmup
+            // 3. Data Warmup
             if (contentRegistry != null)
                 Debug.Log($"[AppBootstrapper] Library Warmup: {contentRegistry.AllProblems.Count} activities ready.");
 
-            // HARDENED STARTUP (Audit Fix): Wait for systems to settle
-            yield return new WaitForSeconds(0.1f); 
-            
-            Debug.Log("[AppBootstrapper] Enchanted Forest Initialized. Entering Main Menu...");
-            SceneManager.LoadScene(mainMenuSceneName, LoadSceneMode.Single); 
+            // Verification of Service Readiness
+            bool allReady = persistence.IsInitialized && gardenManager.IsInitialized && 
+                            helperSystem.IsInitialized && session.IsInitialized && accessibility.IsInitialized;
+
+            if (allReady)
+            {
+                Debug.Log("[AppBootstrapper] Services Validated. Signalling Ready...");
+                OnServicesReady?.Invoke();
+                SceneManager.LoadScene(mainMenuSceneName, LoadSceneMode.Single);
+            }
+            else
+            {
+                Debug.LogError("[AppBootstrapper] Critical Service Failure during initialization!");
+            }
+        }
+
+        private T CreateService<T>(string name) where T : MonoBehaviour, IInitializable
+        {
+            var service = Object.FindFirstObjectByType<T>();
+            if (service == null)
+            {
+                var go = new GameObject(name);
+                DontDestroyOnLoad(go);
+                service = go.AddComponent<T>();
+            }
+            return service;
         }
     }
 }

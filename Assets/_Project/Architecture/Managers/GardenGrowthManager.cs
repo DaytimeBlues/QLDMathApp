@@ -7,7 +7,7 @@ namespace QLDMathApp.Architecture.Managers
     /// GARDEN GROWTH MANAGER: Manages adaptive difficulty and performance tracking.
     /// Uses the "Magic Garden" metaphor: success makes the garden bloom.
     /// </summary>
-    public class GardenGrowthManager : MonoBehaviour
+    public class GardenGrowthManager : MonoBehaviour, IInitializable
     {
         [Header("Garden Calibration")]
         [SerializeField] private float baseGrowthRate = 0.4f;
@@ -20,10 +20,14 @@ namespace QLDMathApp.Architecture.Managers
         [SerializeField] private float lowMasteryThreshold = 0.25f;
         
         private float _currentGrowthRate;
-        
-        private void Awake()
+        public bool IsInitialized { get; private set; }
+
+        public IEnumerator Initialize()
         {
             _currentGrowthRate = baseGrowthRate;
+            yield return null; // Simulate some setup
+            IsInitialized = true;
+            Debug.Log("[GardenGrowthManager] System Ready.");
         }
         
         private void OnEnable()
@@ -39,7 +43,7 @@ namespace QLDMathApp.Architecture.Managers
         private void Start()
         {
             // Initial garden state
-            EventBus.OnMasteryLevelChanged?.Invoke(_currentGrowthRate);
+            EventBus.OnGrowthProgressChanged?.Invoke(_currentGrowthRate);
             Debug.Log($"[GardenGrowth] Magic Garden initialized. Current Bloom: {_currentGrowthRate * 100:F1}%");
         }
         
@@ -56,7 +60,7 @@ namespace QLDMathApp.Architecture.Managers
             }
             
             // Magic garden growth update (Generic Mastery Event)
-            EventBus.OnMasteryLevelChanged?.Invoke(_currentGrowthRate);
+            EventBus.OnGrowthProgressChanged?.Invoke(_currentGrowthRate);
             
             // FOREST HELP: Check for intervention thresholds (Using serialized values)
             if (_currentGrowthRate > highMasteryThreshold)

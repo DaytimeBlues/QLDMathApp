@@ -1,5 +1,6 @@
-using UnityEngine;
 using QLDMathApp.Architecture.Events;
+using QLDMathApp.Architecture;
+using System.Collections;
 
 namespace QLDMathApp.Modules.Magi
 {
@@ -9,8 +10,16 @@ namespace QLDMathApp.Modules.Magi
     /// Bunny: Encouraging/Kind (Nurturing)
     /// Cat: Clever/Advice (Intuitive)
     /// </summary>
-    public class NatureHelperSystem : MonoBehaviour
+    public class NatureHelperSystem : MonoBehaviour, IInitializable
     {
+        public bool IsInitialized { get; private set; }
+
+        public IEnumerator Initialize()
+        {
+            yield return null; // Ready immediately
+            IsInitialized = true;
+            Debug.Log("[NatureHelperSystem] System Ready.");
+        }
         private void OnEnable()
         {
             EventBus.OnAnswerAttempted += ConsultHelpers;
@@ -25,25 +34,19 @@ namespace QLDMathApp.Modules.Magi
         {
             if (isCorrect)
             {
-                // Successful blooming mastery
                 if (responseTime < 1500f)
                 {
-                    // Rational Agent (Owl) triggers on quick mastery
-                    EventBus.OnAgentFeedbackRequested?.Invoke(PedagogicalAgent.Rational, "Whoo! You and the forest are working in perfect harmony.");
+                    EventBus.OnGuideSpoke?.Invoke(GuidePersonality.WiseOwl, "Whoo! You and the forest are working in perfect harmony.");
                 }
                 else
                 {
-                    // Nurturing Agent (Bunny) triggered on successful but slower answer
-                    EventBus.OnAgentFeedbackRequested?.Invoke(PedagogicalAgent.Nurturing, "What a wonderful job! You found the answer so carefully.");
+                    EventBus.OnGuideSpoke?.Invoke(GuidePersonality.KindBunny, "What a wonderful job! You found the answer so carefully.");
                 }
             }
             else
             {
-                // Soft support - Intuitive Agent (Cat) provides clever advice
-                EventBus.OnAgentFeedbackRequested?.Invoke(PedagogicalAgent.Intuitive, "Mew! Maybe try looking at the very middle of the clearing next time.");
-                
-                // Rational Agent (Owl) provides a gentle reminder
-                EventBus.OnAgentFeedbackRequested?.Invoke(PedagogicalAgent.Rational, "Let's take a deep breath and look at the fireflies again, little sprout.");
+                EventBus.OnGuideSpoke?.Invoke(GuidePersonality.CuriousCat, "Mew! Maybe try looking at the very middle of the clearing next time.");
+                EventBus.OnGuideSpoke?.Invoke(GuidePersonality.WiseOwl, "Let's take a deep breath and look at the fireflies again, little sprout.");
             }
         }
     }

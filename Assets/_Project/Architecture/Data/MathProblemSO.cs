@@ -87,10 +87,6 @@ namespace QLDMathApp.Architecture.Data
         [Tooltip("Visual hint to display during explanation (e.g., grouped objects)")]
         public Sprite visualHint;
 
-        [Header("NERV Mission Parameters")]
-        public float requiredSyncRate = 0.6f;
-        public string interceptionType = "Angel-Class C";
-
         [Header("Assets")]
         public AudioClip instructionAudio; 
         public AudioClip questionAudio; // e.g., "How many fireflies?"

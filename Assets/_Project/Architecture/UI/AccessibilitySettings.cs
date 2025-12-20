@@ -10,9 +10,13 @@ namespace QLDMathApp.Architecture.UI
     /// - High Contrast: WCAG 2.1 AA compliant colors
     /// - Audio Descriptions: Extended voice-over support
     /// </summary>
-    public class AccessibilitySettings : MonoBehaviour
+    using QLDMathApp.Architecture.Services;
+    using System.Collections;
+
+    public class AccessibilitySettings : MonoBehaviour, IInitializable
     {
         public static AccessibilitySettings Instance { get; private set; }
+        public bool IsInitialized { get; private set; }
 
         [Header("Current Settings")]
         [SerializeField] private bool zenModeEnabled;
@@ -40,7 +44,6 @@ namespace QLDMathApp.Architecture.UI
             {
                 Instance = this;
                 DontDestroyOnLoad(gameObject);
-                LoadSettings();
             }
             else
             {
@@ -48,33 +51,55 @@ namespace QLDMathApp.Architecture.UI
             }
         }
 
+        public IEnumerator Initialize()
+        {
+            LoadSettings();
+            IsInitialized = true;
+            yield return null;
+        }
+
         private void LoadSettings()
         {
-            zenModeEnabled = PlayerPrefs.GetInt(ZEN_MODE_KEY, 0) == 1;
-            highContrastEnabled = PlayerPrefs.GetInt(HIGH_CONTRAST_KEY, 0) == 1;
-            reducedMotionEnabled = PlayerPrefs.GetInt(REDUCED_MOTION_KEY, 0) == 1;
+            if (PersistenceService.Instance == null) return;
+
+            var data = PersistenceService.Instance.Load<AppUserData>();
+            zenModeEnabled = data.ZenMode;
+            highContrastEnabled = data.HighContrast;
+            reducedMotionEnabled = data.ReducedMotion;
             
             ApplySettings();
+        }
+
+        private void SaveSettings()
+        {
+            if (PersistenceService.Instance == null) return;
+            
+            var data = PersistenceService.Instance.Load<AppUserData>();
+            data.ZenMode = zenModeEnabled;
+            data.HighContrast = highContrastEnabled;
+            data.ReducedMotion = reducedMotionEnabled;
+            
+            PersistenceService.Instance.Save(data);
         }
 
         public void SetZenMode(bool enabled)
         {
             zenModeEnabled = enabled;
-            PlayerPrefs.SetInt(ZEN_MODE_KEY, enabled ? 1 : 0);
+            SaveSettings();
             ApplySettings();
         }
 
         public void SetHighContrast(bool enabled)
         {
             highContrastEnabled = enabled;
-            PlayerPrefs.SetInt(HIGH_CONTRAST_KEY, enabled ? 1 : 0);
+            SaveSettings();
             ApplySettings();
         }
 
         public void SetReducedMotion(bool enabled)
         {
             reducedMotionEnabled = enabled;
-            PlayerPrefs.SetInt(REDUCED_MOTION_KEY, enabled ? 1 : 0);
+            SaveSettings();
             ApplySettings();
         }
 

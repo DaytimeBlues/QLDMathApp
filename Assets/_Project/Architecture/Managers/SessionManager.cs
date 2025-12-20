@@ -13,9 +13,12 @@ namespace QLDMathApp.Architecture.Managers
     /// - Problems attempted this session
     /// Persists to PlayerPrefs on session end.
     /// </summary>
-    public class SessionManager : MonoBehaviour
+    using QLDMathApp.Architecture.Services;
+
+    public class SessionManager : MonoBehaviour, IInitializable
     {
         public static SessionManager Instance { get; private set; }
+        public bool IsInitialized { get; private set; }
 
         [Header("Session Data")]
         [SerializeField] private float sessionTimeoutMinutes = 15f;
@@ -53,9 +56,17 @@ namespace QLDMathApp.Architecture.Managers
             EventBus.OnGameStateChanged -= OnGameStateChanged;
         }
 
+        public IEnumerator Initialize()
+        {
+            // Session manager is ready immediately as it waits for persistence service
+            IsInitialized = true;
+            StartNewSession();
+            yield return null;
+        }
+
         private void Start()
         {
-            StartNewSession();
+            // Logic moved to Initialize/StartNewSession
         }
 
         private void Update()
@@ -100,35 +111,31 @@ namespace QLDMathApp.Architecture.Managers
 
         public void EndSession()
         {
-            if (!IsSessionActive) return;
+            if (!IsSessionActive || PersistenceService.Instance == null) return;
             
             IsSessionActive = false;
             float duration = SessionDurationMinutes;
             
-            // Persist stats
-            int totalSessions = PlayerPrefs.GetInt("TotalSessions", 0) + 1;
-            float totalMinutes = PlayerPrefs.GetFloat("TotalMinutes", 0f) + duration;
+            // AUDIT FIX: Using PersistenceService instead of insecure PlayerPrefs
+            var data = PersistenceService.Instance.Load<AppUserData>();
+            
+            data.TotalSessions++;
+            data.TotalMinutes += duration;
             
             // Update accuracy
             if (_problemsAttempted > 0)
             {
                 float sessionAccuracy = (_problemsCorrect * 100f) / _problemsAttempted;
-                float prevAccuracy = PlayerPrefs.GetFloat("OverallAccuracy", 0f);
-                int prevTotal = PlayerPrefs.GetInt("TotalProblems", 0);
                 
                 // Weighted average
-                int newTotal = prevTotal + _problemsAttempted;
-                float newAccuracy = ((prevAccuracy * prevTotal) + (sessionAccuracy * _problemsAttempted)) / newTotal;
-                
-                PlayerPrefs.SetFloat("OverallAccuracy", newAccuracy);
-                PlayerPrefs.SetInt("TotalProblems", newTotal);
+                int newTotal = data.TotalProblems + _problemsAttempted;
+                data.OverallAccuracy = ((data.OverallAccuracy * data.TotalProblems) + (sessionAccuracy * _problemsAttempted)) / newTotal;
+                data.TotalProblems = newTotal;
             }
             
-            PlayerPrefs.SetInt("TotalSessions", totalSessions);
-            PlayerPrefs.SetFloat("TotalMinutes", totalMinutes);
-            PlayerPrefs.Save();
+            PersistenceService.Instance.Save(data);
             
-            Debug.Log($"[SessionManager] Session ended. Duration: {duration:F1}min, Problems: {_problemsAttempted}, Correct: {_problemsCorrect}");
+            Debug.Log($"[SessionManager] Session persisted to JSON. Duration: {duration:F1}min, Problems: {_problemsAttempted}, Correct: {_problemsCorrect}");
         }
 
         private void OnApplicationPause(bool pauseStatus)

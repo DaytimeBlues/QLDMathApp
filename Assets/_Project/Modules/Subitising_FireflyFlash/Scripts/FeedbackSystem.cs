@@ -32,14 +32,26 @@ namespace QLDMathApp.Modules.Subitising
         
         private void OnEnable()
         {
-            EventBus.OnPlaySuccessFeedback += PlaySuccessFeedback;
-            EventBus.OnPlayCorrectionFeedback += PlayCorrectionFeedback;
+            EventBus.OnAnswerAttempted += HandleAnswerAttempted;
+            EventBus.OnGuideSpoke += HandleGuideSpoke;
         }
 
         private void OnDisable()
         {
-            EventBus.OnPlaySuccessFeedback -= PlaySuccessFeedback;
-            EventBus.OnPlayCorrectionFeedback -= PlayCorrectionFeedback;
+            EventBus.OnAnswerAttempted -= HandleAnswerAttempted;
+            EventBus.OnGuideSpoke -= HandleGuideSpoke;
+        }
+
+        private void HandleAnswerAttempted(bool correct, float responseTime)
+        {
+            if (correct) PlaySuccessFeedback();
+            else PlayCorrectionFeedback();
+        }
+
+        private void HandleGuideSpoke(GuidePersonality guide, string message)
+        {
+            Debug.Log($"[{guide}] {message}");
+            // Optional: Trigger character animations based on guide
         }
 
         /// <summary>

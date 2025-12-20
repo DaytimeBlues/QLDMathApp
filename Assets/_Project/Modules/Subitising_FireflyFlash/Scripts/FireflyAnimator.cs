@@ -4,19 +4,19 @@ using System.Collections;
 namespace QLDMathApp.Modules.Subitising
 {
     /// <summary>
-    /// ANGEL ANIMATOR: Animates individual Angel silhouettes: floating, pulsing, fade in/out.
-    /// Digital interference look.
+    /// FIREFLY ANIMATOR: Animates individual fireflies with floating and glowing effects.
+    /// Provides gentle, natural movement for the forest garden.
     /// </summary>
     [RequireComponent(typeof(SpriteRenderer))]
-    public class AngelAnimator : MonoBehaviour // Renamed from FireflyAnimator
+    public class FireflyAnimator : MonoBehaviour
     {
-        [Header("Float Animation")]
+        [Header("Nature Animation")]
         [SerializeField] private float floatAmplitude = 0.1f;
         [SerializeField] private float floatSpeed = 2f;
         
-        [Header("Glow")]
-        [SerializeField] private float glowIntensity = 1.5f;
-        [SerializeField] private float glowSpeed = 3f;
+        [Header("Garden Glow")]
+        [SerializeField] private float glowIntensity = 2.0f;
+        [SerializeField] private float glowSpeed = 2f;
         
         private SpriteRenderer _spriteRenderer;
         private Vector3 _basePosition;
@@ -47,24 +47,26 @@ namespace QLDMathApp.Modules.Subitising
         {
             if (_isFloating)
             {
-                // Gentle bobbing motion
+                // Gentle swaying motion
                 float yOffset = Mathf.Sin((Time.time + _phaseOffset) * floatSpeed) * floatAmplitude;
                 float xOffset = Mathf.Sin((Time.time + _phaseOffset) * floatSpeed * 0.7f) * floatAmplitude * 0.5f;
                 transform.localPosition = _basePosition + new Vector3(xOffset, yOffset, 0);
                 
-                // Subtle glow pulsing
-                float glow = 1f + Mathf.Sin((Time.time + _phaseOffset) * glowSpeed) * 0.2f;
-                _spriteRenderer.color = _baseColor * glow;
+                // Magical firefly glow
+                float glow = 0.8f + Mathf.Sin((Time.time + _phaseOffset) * glowSpeed) * 0.2f;
+                _spriteRenderer.color = new Color(_baseColor.r, _baseColor.g, _baseColor.b, _baseColor.a * glow);
             }
         }
 
         public void FadeOut(float duration)
         {
+            StopAllCoroutines();
             StartCoroutine(FadeRoutine(1f, 0f, duration, true));
         }
 
         public void FadeIn(float duration)
         {
+            StopAllCoroutines();
             gameObject.SetActive(true);
             StartCoroutine(FadeRoutine(0f, 1f, duration, false));
         }
@@ -87,7 +89,7 @@ namespace QLDMathApp.Modules.Subitising
         }
 
         /// <summary>
-        /// NERV ANALYSIS: Pulse when identified during explanation.
+        /// MAGIC PULSE: Pulse when counted during the explanation phase.
         /// </summary>
         public void Pulse()
         {
@@ -97,26 +99,23 @@ namespace QLDMathApp.Modules.Subitising
         private IEnumerator PulseRoutine()
         {
             Vector3 originalScale = transform.localScale;
-            Vector3 pulseScale = originalScale * 1.3f;
+            Vector3 pulseScale = originalScale * 1.5f;
             
-            // Scale up
-            for (float t = 0; t < 0.1f; t += Time.deltaTime)
+            // Expand
+            for (float t = 0; t < 0.15f; t += Time.deltaTime)
             {
-                transform.localScale = Vector3.Lerp(originalScale, pulseScale, t / 0.1f);
-                _spriteRenderer.color = _baseColor * glowIntensity;
+                transform.localScale = Vector3.Lerp(originalScale, pulseScale, t / 0.15f);
                 yield return null;
             }
             
-            // Scale down
-            for (float t = 0; t < 0.2f; t += Time.deltaTime)
+            // Shrink back
+            for (float t = 0; t < 0.25f; t += Time.deltaTime)
             {
-                transform.localScale = Vector3.Lerp(pulseScale, originalScale, t / 0.2f);
-                _spriteRenderer.color = Color.Lerp(_baseColor * glowIntensity, _baseColor, t / 0.2f);
+                transform.localScale = Vector3.Lerp(pulseScale, originalScale, t / 0.25f);
                 yield return null;
             }
             
             transform.localScale = originalScale;
-            _spriteRenderer.color = _baseColor;
         }
     }
 }

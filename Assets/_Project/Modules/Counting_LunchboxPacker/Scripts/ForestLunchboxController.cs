@@ -10,27 +10,27 @@ using QLDMathApp.Architecture.Events;
 namespace QLDMathApp.Modules.Counting
 {
     /// <summary>
-    /// ENTRY PLUG SUPPLY: Counting game (re-themed).
-    /// "Supply 3 modules for the Entry Plug!"
-    /// Child drags items to Entry Plug, practicing one-to-one correspondence.
+    /// FOREST LUNCHBOX: Counting game for Foundation Year.
+    /// "Help the animals pack 3 apples for the picnic!"
+    /// Child drags items to the basket, practicing one-to-one correspondence.
     /// </summary>
-    public class EntryPlugSupplyController : MonoBehaviour // Renamed from LunchboxPackerController
+    public class ForestLunchboxController : MonoBehaviour
     {
-        [Header("NERV Theme")]
-        [SerializeField] private NERVTheme theme;
+        [Header("Garden Theme")]
+        [SerializeField] private NERVTheme theme; // TODO: Replace with GardenTheme
 
-        [Header("Supply References")]
-        [SerializeField, FormerlySerializedAs("itemSpawnArea")] private Transform supplySpawnArea; 
-        [SerializeField, FormerlySerializedAs("lunchbox")] private EntryPlugSlot entryPlug; 
+        [Header("Basket References")]
+        [SerializeField] private Transform supplySpawnArea; 
+        [SerializeField] private LunchboxSlot picnicBasket; 
         [SerializeField] private AudioSource audioSource;
-        [SerializeField, FormerlySerializedAs("characterImage")] private Image operatorImage; 
-        [SerializeField, FormerlySerializedAs("characterAnimator")] private Animator operatorAnimator;
+        [SerializeField] private Image guideImage; 
+        [SerializeField] private Animator guideAnimator;
         
         [Header("Prefabs")]
-        [SerializeField, FormerlySerializedAs("foodPrefabs")] private DraggableItem[] supplyPrefabs; 
+        [SerializeField] private DraggableItem[] supplyPrefabs; 
         
-        [Header("Mission Settings")]
-        [SerializeField, FormerlySerializedAs("maxItemsToSpawn")] private int maxSuppliesAvailable = 8;
+        [Header("Activity Settings")]
+        [SerializeField] private int maxSuppliesAvailable = 8;
         
         private MathProblemSO _currentProblem;
         private int _targetCount;
@@ -57,35 +57,35 @@ namespace QLDMathApp.Modules.Counting
             ClearSupplies();
             SpawnSupplies();
             
-            // Play instruction: "Initialize 3 power modules for EVA-01!"
+            // Play instruction: "Initialize 3 items for the picnic!"
             if (problem.questionAudio != null)
             {
                 audioSource.PlayOneShot(problem.questionAudio);
             }
             
-            // Operator monitoring
-            if (operatorAnimator != null)
+            // Guide monitoring
+            if (guideAnimator != null)
             {
-                operatorAnimator.SetTrigger("Monitoring");
+                guideAnimator.SetTrigger("Monitoring");
             }
             
             _roundStartTime = Time.time;
-            entryPlug.ResetSlots(_targetCount);
+            picnicBasket.ResetSlots(_targetCount);
         }
 
         private void SpawnSupplies()
         {
             if (supplyPrefabs.Length == 0) return;
             
-            // Spawn target modules + distractors
+            // Spawn target items + distractors
             DraggableItem prefab = supplyPrefabs[Random.Range(0, supplyPrefabs.Length)];
             
             for (int i = 0; i < maxSuppliesAvailable; i++)
             {
                 Vector3 spawnPos = GetRandomSpawnPosition();
                 DraggableItem item = Instantiate(prefab, spawnPos, Quaternion.identity, supplySpawnArea);
-                item.OnConnectionEstablished += HandleModuleSupplied; // Renamed from OnDroppedInLunchbox
-                item.OnConnectionFailed += HandleModuleDroppedOutside; // Renamed from OnDroppedOutside
+                item.OnConnectionEstablished += HandleModuleSupplied; 
+                item.OnConnectionFailed += HandleModuleDroppedOutside;
                 _spawnedModules.Add(item);
             }
         }
@@ -101,12 +101,12 @@ namespace QLDMathApp.Modules.Counting
         {
             _suppliedCount++;
             
-            Debug.Log($"[NERV] Module {_suppliedCount} initialized.");
+            Debug.Log($"[ForestLunchbox] Item {_suppliedCount} packed.");
             
-            // Visual: Module locks into Entry Plug slot
-            entryPlug.AcceptItem(item, _suppliedCount - 1);
+            // Visual: Item locks into basket slot
+            picnicBasket.AcceptItem(item, _suppliedCount - 1);
             
-            // Check if mission objective met
+            // Check if activity objective met
             if (_suppliedCount >= _targetCount)
             {
                 StartCoroutine(CompleteSupplyMission());
@@ -124,20 +124,20 @@ namespace QLDMathApp.Modules.Counting
             
             float responseTime = (Time.time - _roundStartTime) * 1000f;
             
-            // MISSION SUCCESS
+            // ACTIVITY SUCCESS
             EventBus.OnAnswerAttempted?.Invoke(true, responseTime);
             EventBus.OnPlaySuccessFeedback?.Invoke();
             
-            // Sync Rate Feedback
-            EventBus.OnSyncRateChanged?.Invoke(0.85f); // Example sync rate
+            // GENERIC MASTERY FEEDBACK (Audit Fix: resolves OnSyncRateChanged compilation error)
+            EventBus.OnMasteryLevelChanged?.Invoke(0.85f); 
 
-            if (operatorAnimator != null)
+            if (guideAnimator != null)
             {
-                operatorAnimator.SetTrigger("AllClear");
+                guideAnimator.SetTrigger("AllClear");
             }
             
             yield return new WaitForSeconds(2f);
-            Debug.Log("[NERV] Supply mission complete. EVA-01 active.");
+            Debug.Log("[ForestLunchbox] Lunchbox packed. Ready for the picnic!");
         }
 
         private void HandleIntervention(InterventionType type)
@@ -151,19 +151,19 @@ namespace QLDMathApp.Modules.Counting
         private IEnumerator PlayDemoSequence()
         {
             // EXPLANATORY FEEDBACK: Show how to pack items
-            Debug.Log("[NERV] Playing demo...");
+            Debug.Log("[ForestLunchbox] Playing demo...");
             
-            // Highlight the Entry Plug
-            entryPlug.Highlight(true);
+            // Highlight the Basket
+            picnicBasket.Highlight(true);
             
-            // Animate one item moving to plug
+            // Animate one item moving to basket
             if (_spawnedModules.Count > 0)
             {
                 var demoItem = _spawnedModules[0];
-                yield return demoItem.AnimateDemoMove(entryPlug.GetSlotPosition(0));
+                yield return demoItem.AnimateDemoMove(picnicBasket.GetSlotPosition(0));
             }
             
-            entryPlug.Highlight(false);
+            picnicBasket.Highlight(false);
             
             // Reset for player to try
             ClearSupplies();
@@ -185,4 +185,5 @@ namespace QLDMathApp.Modules.Counting
             _spawnedModules.Clear();
         }
     }
+}
 }
