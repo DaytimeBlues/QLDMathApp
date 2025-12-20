@@ -76,8 +76,8 @@ namespace QLDMathApp.Architecture.Data
 
         [Header("Content")]
         public string questionId; // e.g., "SUB_LVL1_001"
-        [Range(0.5f, 5.0f)] public float flashDuration = 2.0f; // New: Flash mechanic
-        public PatternType visualPattern = PatternType.Dice;   // New: Pattern type
+        [Range(0.5f, 5.0f)] public float flashDuration = 2.0f; // How long patterns are visible
+        public PatternType visualPattern = PatternType.Dice;   // Pattern type
         public int correctValue;
         public List<int> distractorValues;
 
@@ -87,7 +87,7 @@ namespace QLDMathApp.Architecture.Data
         [Tooltip("Visual hint to display during explanation (e.g., grouped objects)")]
         public Sprite visualHint;
 
-        [Header("Assets")]
+        [Header("Game Assets")]
         public AudioClip instructionAudio; 
         public AudioClip questionAudio; // e.g., "How many fireflies?"
         public Sprite targetVisual;     // e.g., Firefly sprite
@@ -102,4 +102,3 @@ namespace QLDMathApp.Architecture.Data
             curriculumCode == CurriculumCode.AC9MFA01;
     }
 }
-

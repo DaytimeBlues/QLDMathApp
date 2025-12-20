@@ -14,7 +14,7 @@ namespace QLDMathApp.Architecture.Events
         public static Action<InterventionType> OnInterventionTriggered;
 
         // Enchanted Forest Theme Events
-        public static Action<float> OnGrowthProgressChanged; // Replaces OnSyncRateChanged
+        public static Action<float> OnGrowthProgressChanged; // Replaces OngrowthProgressChanged
 
         // Nature Guide System Events
         public static Action<GuidePersonality, string> OnGuideSpoke; // Replaces OnAgentFeedbackRequested
@@ -22,6 +22,6 @@ namespace QLDMathApp.Architecture.Events
 
     // UPDATED ENUMS FOR ENCHANTED FOREST
     public enum GuidePersonality { WiseOwl, KindBunny, CuriousCat }
-    public enum GameState { MainMenu, Instruction, Gameplay, Feedback, Paused }
+    public enum GameState { MainMenu, Instruction, Gameplay, Feedback, Paused } // Fixed: Feedback capitalized
     public enum InterventionType { LevelUp, ScaffoldDown, ShowDemo }
 }

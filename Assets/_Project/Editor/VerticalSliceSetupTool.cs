@@ -21,11 +21,11 @@ namespace QLDMathApp.Editor
             Debug.Log("--- Starting Vertical Slice Setup ---");
 
             EnsureDirectories();
-            CreateNERVThemeAsset();
+            CreateForestThemeAsset();
             CreateContentRegistryAndSamples();
             CreateBootstrapScene();
             CreateMainMenuScene();
-            CreateAngelInterceptScene();
+            CreateFireflyInterceptScene();
             SetupBuildSettings();
 
             Debug.Log("--- Setup Complete! ---");
@@ -106,14 +106,14 @@ namespace QLDMathApp.Editor
             EditorSceneManager.SaveScene(scene, path);
         }
 
-        private static void CreateNERVThemeAsset()
+        private static void CreateForestThemeAsset()
         {
-            string path = "Assets/_Project/Resources/Data/NERVTheme.asset";
-            var theme = AssetDatabase.LoadAssetAtPath<QLDMathApp.Architecture.UI.NERVTheme>(path);
+            string path = "Assets/_Project/Resources/Data/ForestTheme.asset";
+            var theme = AssetDatabase.LoadAssetAtPath<QLDMathApp.Architecture.UI.ForestTheme>(path);
             if (theme == null)
             {
-                theme = ScriptableObject.CreateInstance<QLDMathApp.Architecture.UI.NERVTheme>();
-                // Standard NERV Identity
+                theme = ScriptableObject.CreateInstance<QLDMathApp.Architecture.UI.ForestTheme>();
+                // Standard Forest Identity
                 AssetDatabase.CreateAsset(theme, path);
             }
         }
@@ -124,7 +124,7 @@ namespace QLDMathApp.Editor
             var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
 
             // Find Theme
-            var theme = AssetDatabase.LoadAssetAtPath<QLDMathApp.Architecture.UI.NERVTheme>("Assets/_Project/Resources/Data/NERVTheme.asset");
+            var theme = AssetDatabase.LoadAssetAtPath<QLDMathApp.Architecture.UI.ForestTheme>("Assets/_Project/Resources/Data/ForestTheme.asset");
 
             // UI Setup
             var canvasGO = new GameObject("Canvas");
@@ -139,7 +139,7 @@ namespace QLDMathApp.Editor
             var bgGO = new GameObject("Background", typeof(Image));
             bgGO.transform.SetParent(canvasGO.transform, false);
             var bgImg = bgGO.GetComponent<Image>();
-            bgImg.color = new Color(0.05f, 0.05f, 0.1f); // Dark NERV background
+            bgImg.color = new Color(0.05f, 0.05f, 0.1f); // Dark Forest background
             var bgRT = bgGO.GetComponent<RectTransform>();
             bgRT.anchorMin = Vector2.zero;
             bgRT.anchorMax = Vector2.one;
@@ -161,10 +161,10 @@ namespace QLDMathApp.Editor
             var titleGO = new GameObject("Title", typeof(Text));
             titleGO.transform.SetParent(canvasGO.transform, false);
             var titleText = titleGO.GetComponent<Text>();
-            titleText.text = "NERV TACTICAL HUB\n<size=30>QLD MATHEMATICS INTERFACE</size>";
+            titleText.text = "ENCHANTED FOREST\n<size=30>LEARNING JOURNEY</size>";
             titleText.fontSize = 80;
             titleText.alignment = TextAnchor.MiddleCenter;
-            titleText.color = new Color(1f, 0.5f, 0f); // NERV Orange
+            titleText.color = new Color(0.7f, 1f, 0.4f); // Forest Green
             titleText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             titleText.supportRichText = true;
             var titleRT = titleGO.GetComponent<RectTransform>();
@@ -178,11 +178,11 @@ namespace QLDMathApp.Editor
             buttonsRT.anchoredPosition = new Vector2(0, -100);
 
             // Play Button
-            var playBtnGO = CreateThemedButton("Btn_Play", "INITIATE INTERCEPT", new Vector2(0, 100), buttonsGO.transform);
+            var playBtnGO = CreateThemedButton("Btn_Play", "START ADVENTURE", new Vector2(0, 100), buttonsGO.transform);
             var playBtn = playBtnGO.GetComponent<Button>();
 
             // Settings Button
-            var setBtnGO = CreateThemedButton("Btn_Settings", "TACTICAL CONFIG", new Vector2(0, -50), buttonsGO.transform);
+            var setBtnGO = CreateThemedButton("Btn_Settings", "GARDEN SETTINGS", new Vector2(0, -50), buttonsGO.transform);
             var setBtn = setBtnGO.GetComponent<Button>();
 
             // Controller
@@ -208,7 +208,7 @@ namespace QLDMathApp.Editor
             rt.anchoredPosition = pos;
 
             var img = btnGO.GetComponent<Image>();
-            img.color = new Color(0.1f, 1f, 0.4f, 0.2f); // Transparent Sync Green
+            img.color = new Color(0.1f, 0.6f, 0.1f, 0.2f); // Transparent Green
 
             var outlineGO = new GameObject("Outline", typeof(Image));
             outlineGO.transform.SetParent(btnGO.transform, false);
@@ -217,7 +217,7 @@ namespace QLDMathApp.Editor
             outRT.anchorMax = Vector2.one;
             outRT.sizeDelta = new Vector2(4, 4);
             var outImg = outlineGO.GetComponent<Image>();
-            outImg.color = new Color(0.1f, 1f, 0.4f, 1f); // Solid Sync Green
+            outImg.color = new Color(0.7f, 1f, 0.4f, 1f); // Solid Green
 
             var textGO = new GameObject("Label", typeof(Text));
             textGO.transform.SetParent(btnGO.transform, false);
@@ -225,7 +225,7 @@ namespace QLDMathApp.Editor
             txt.text = label;
             txt.fontSize = 32;
             txt.alignment = TextAnchor.MiddleCenter;
-            txt.color = new Color(0.1f, 1f, 0.4f); // Sync Green
+            txt.color = new Color(0.7f, 1f, 0.4f); // Green
             txt.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             var txtRT = textGO.GetComponent<RectTransform>();
             txtRT.anchorMin = Vector2.zero;
@@ -235,13 +235,13 @@ namespace QLDMathApp.Editor
             return btnGO;
         }
 
-        private static void CreateAngelInterceptScene()
+        private static void CreateFireflyInterceptScene()
         {
-            string path = "Assets/_Project/Scenes/AngelIntercept.unity";
+            string path = "Assets/_Project/Scenes/FireflyIntercept.unity";
             var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
 
             // Load Theme
-            var theme = AssetDatabase.LoadAssetAtPath<QLDMathApp.Architecture.UI.NERVTheme>("Assets/_Project/Resources/Data/NERVTheme.asset");
+            var theme = AssetDatabase.LoadAssetAtPath<QLDMathApp.Architecture.UI.ForestTheme>("Assets/_Project/Resources/Data/ForestTheme.asset");
 
             // UI Setup
             var canvasGO = new GameObject("Canvas");
@@ -276,10 +276,10 @@ namespace QLDMathApp.Editor
             var hudGO = new GameObject("HUD", typeof(Text));
             hudGO.transform.SetParent(canvasGO.transform, false);
             var hudTxt = hudGO.GetComponent<Text>();
-            hudTxt.text = "SYNC RATIO: 40.0%";
+            hudTxt.text = "GARDEN GROWTH: 0%";
             hudTxt.fontSize = 40;
             hudTxt.alignment = TextAnchor.UpperRight;
-            hudTxt.color = new Color(0.1f, 1f, 0.4f);
+            hudTxt.color = new Color(0.7f, 1f, 0.4f);
             hudTxt.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             var hudRT = hudGO.GetComponent<RectTransform>();
             hudRT.anchorMin = new Vector2(1, 1);
@@ -288,43 +288,43 @@ namespace QLDMathApp.Editor
             hudRT.anchoredPosition = new Vector2(-50, -50);
             hudRT.sizeDelta = new Vector2(400, 100);
 
-            // MAGI DISPLAY
-            var magiGO = new GameObject("MagiDisplay", typeof(CanvasGroup));
-            magiGO.transform.SetParent(canvasGO.transform, false);
-            var magiRT = magiGO.GetComponent<RectTransform>();
-            magiRT.anchorMin = new Vector2(0, 1);
-            magiRT.anchorMax = new Vector2(0, 1);
-            magiRT.pivot = new Vector2(0, 1);
-            magiRT.anchoredPosition = new Vector2(50, -50);
-            magiRT.sizeDelta = new Vector2(600, 200);
+            // HELPER BUBBLE
+            var guideGO = new GameObject("HelperBubble", typeof(CanvasGroup));
+            guideGO.transform.SetParent(canvasGO.transform, false);
+            var guideRT = guideGO.GetComponent<RectTransform>();
+            guideRT.anchorMin = new Vector2(0, 1);
+            guideRT.anchorMax = new Vector2(0, 1);
+            guideRT.pivot = new Vector2(0, 1);
+            guideRT.anchoredPosition = new Vector2(50, -50);
+            guideRT.sizeDelta = new Vector2(600, 200);
             
-            var mTitle = new GameObject("Personality", typeof(Text));
-            mTitle.transform.SetParent(magiGO.transform, false);
-            var mTitleTxt = mTitle.GetComponent<Text>();
-            mTitleTxt.fontSize = 30;
-            mTitleTxt.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-            mTitle.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 50);
+            var gTitle = new GameObject("Personality", typeof(Text));
+            gTitle.transform.SetParent(guideGO.transform, false);
+            var gTitleTxt = gTitle.GetComponent<Text>();
+            gTitleTxt.fontSize = 30;
+            gTitleTxt.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            gTitle.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 50);
 
-            var mContent = new GameObject("Message", typeof(Text));
-            mContent.transform.SetParent(magiGO.transform, false);
-            var mContentTxt = mContent.GetComponent<Text>();
-            mContentTxt.fontSize = 24;
-            mContentTxt.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            var gContent = new GameObject("Message", typeof(Text));
+            gContent.transform.SetParent(guideGO.transform, false);
+            var gContentTxt = gContent.GetComponent<Text>();
+            gContentTxt.fontSize = 24;
+            gContentTxt.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             
-            var mDisplay = magiGO.AddComponent<QLDMathApp.Modules.Magi.MagiDisplay>();
-            SerializedObject mso = new SerializedObject(mDisplay);
-            mso.FindProperty("personalityLabel").objectReferenceValue = mTitleTxt;
-            mso.FindProperty("messageText").objectReferenceValue = mContentTxt;
-            mso.FindProperty("displayGroup").objectReferenceValue = magiGO.GetComponent<CanvasGroup>();
-            mso.ApplyModifiedProperties();
+            var hBubble = guideGO.AddComponent<QLDMathApp.Modules\.NatureGuides.HelperBubble>();
+            SerializedObject hso = new SerializedObject(hBubble);
+            hso.FindProperty("personalityLabel").objectReferenceValue = gTitleTxt;
+            hso.FindProperty("messageText").objectReferenceValue = gContentTxt;
+            hso.FindProperty("displayGroup").objectReferenceValue = guideGO.GetComponent<CanvasGroup>();
+            hso.ApplyModifiedProperties();
 
             // Logic
-            var logicGO = new GameObject("AngelInterceptController");
-            var controller = logicGO.AddComponent<AngelInterceptController>();
+            var logicGO = new GameObject("FireflyGameLoop");
+            var controller = logicGO.AddComponent<FireflyGameLoop>();
             
             // Wire logic
             SerializedObject lso = new SerializedObject(controller);
-            lso.FindProperty("interceptionFieldGroup").objectReferenceValue = fieldGroup;
+            lso.FindProperty("answerButtonsCanvas").objectReferenceValue = fieldGroup;
             if (theme != null) lso.FindProperty("theme").objectReferenceValue = theme;
             lso.ApplyModifiedProperties();
             
@@ -336,7 +336,7 @@ namespace QLDMathApp.Editor
             var scenes = new EditorBuildSettingsScene[] {
                 new EditorBuildSettingsScene("Assets/_Project/Scenes/_Bootstrap.unity", true),
                 new EditorBuildSettingsScene("Assets/_Project/Scenes/MainMenu.unity", true),
-                new EditorBuildSettingsScene("Assets/_Project/Scenes/AngelIntercept.unity", true)
+                new EditorBuildSettingsScene("Assets/_Project/Scenes/FireflyIntercept.unity", true)
             };
             EditorBuildSettings.scenes = scenes;
         }

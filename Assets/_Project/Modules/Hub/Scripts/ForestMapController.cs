@@ -15,7 +15,7 @@ namespace QLDMathApp.Modules.Hub
     public class ForestMapController : MonoBehaviour
     {
         [Header("Garden Theme")]
-        [SerializeField] private Architecture.UI.NERVTheme theme; // TODO: Replace with GardenTheme
+        [SerializeField] private Architecture.UI.ForestTheme theme; // TODO: Replace with GardenTheme
 
         [Header("Clearing References")]
         [SerializeField] private Transform guideTransform; 

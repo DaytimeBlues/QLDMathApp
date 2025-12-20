@@ -8,16 +8,16 @@ using QLDMathApp.Architecture.UI;
 namespace QLDMathApp.Modules.Subitising
 {
     /// <summary>
-    /// NERV TERMINAL BUTTON: Tactile, high-tech button for pilot input.
+    /// Forest TERMINAL BUTTON: Tactile, high-tech button for pilot input.
     /// - Neon green borders
     /// - Digital glitch feedback
-    /// - Audio feedback with NERV chimes
+    /// - Audio feedback with Forest chimes
     /// </summary>
     [RequireComponent(typeof(Button))]
     public class AnswerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        [Header("NERV Theme")]
-        [SerializeField] private Architecture.UI.NERVTheme theme;
+        [Header("Forest Theme")]
+        [SerializeField] private Architecture.UI.ForestTheme theme;
 
         [Header("UI")]
         [SerializeField] private Text numberText;
@@ -53,7 +53,7 @@ namespace QLDMathApp.Modules.Subitising
             _value = value;
             numberText.text = value.ToString();
             
-            // Apply NERV Theme
+            // Apply Forest Theme
             if (theme != null)
             {
                 buttonImage.color = new Color(0.1f, 0.1f, 0.1f, theme.panelAlpha);
@@ -77,7 +77,7 @@ namespace QLDMathApp.Modules.Subitising
             _rectTransform.anchoredPosition = _originalPosition - new Vector2(0, pressOffset);
             
             if (theme != null)
-                buttonImage.color = theme.syncGreen;
+                buttonImage.color = theme.growthGreen;
             
             if (outlineImage != null) outlineImage.enabled = false;
             

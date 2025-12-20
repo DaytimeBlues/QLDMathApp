@@ -7,14 +7,14 @@ using QLDMathApp.Architecture.UI;
 namespace QLDMathApp.Modules.Counting
 {
     /// <summary>
-    /// NERV SUPPLY MODULE: Draggable module for Entry Plug Supply.
-    /// Large touch target, smooth drag, tactical snap-back on mission failure.
+    /// Forest SUPPLY MODULE: Draggable module for Entry Plug Supply.
+    /// Large touch target, smooth drag, tactical snap-back on ForestRound failure.
     /// </summary>
     [RequireComponent(typeof(CanvasGroup))]
     public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
-        [Header("NERV Theme")]
-        [SerializeField] private Architecture.UI.NERVTheme theme;
+        [Header("Forest Theme")]
+        [SerializeField] private Architecture.UI.ForestTheme theme;
 
         [Header("Settings")]
         [SerializeField] private float dragScale = 1.2f;

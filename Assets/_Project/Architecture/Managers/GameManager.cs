@@ -45,7 +45,7 @@ namespace QLDMathApp.Architecture.Managers
             {
                 CurrentProblem = problem;
                 
-                // 1. Structural Hybridization: Instruction first?
+                // 1. Instruction phase
                 // check if we need to show a demo based on difficulty
                 
                 // 2. Play Phase
@@ -60,9 +60,8 @@ namespace QLDMathApp.Architecture.Managers
                 yield return new WaitUntil(() => answered);
                 EventBus.OnAnswerAttempted -= handler;
 
-                // 3. Feedback Phase is automatic via Observer Pattern listeners
-                // But we might want to pause here for the Explanation
-                ChangeState(GameState.feedback);
+                // 3. Feedback Phase
+                ChangeState(GameState.Feedback); // Now matches EventBus enum
                 yield return new WaitForSeconds(2.0f); // Wait for explanation audio
             }
             

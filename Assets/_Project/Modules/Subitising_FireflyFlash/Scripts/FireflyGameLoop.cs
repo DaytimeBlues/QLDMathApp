@@ -1,135 +1,172 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
+using QLDMathApp.Architecture.Audio;
+using QLDMathApp.Architecture.Data;
 using QLDMathApp.Architecture.Events;
 using QLDMathApp.Modules.Subitising;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 namespace QLDMathApp.Modules.Subitising
 {
-    public class FireflyGameLoop : MonoBehaviour 
+    /// <summary>
+    /// FIREFLY GAME LOOP: Standard forest game loop for firefly counting.
+    /// Handles phase transitions from visualization to answer selection.
+    /// </summary>
+    public class FireflyGameLoop : MonoBehaviour
     {
-        [Header("Forest References")]
+        [Header("Forest Theme")]
+        [SerializeField] private ForestTheme theme; // TODO: Replace with ForestTheme
+
+        [Header("Game References")]
         [SerializeField] private FireflySpawner fireflySpawner;
-        [SerializeField] private CanvasGroup guessCanvas;
-        [SerializeField] private Button[] numberButtons;
-        [SerializeField] private Button missionStartButton;
+        [SerializeField] private CanvasGroup answerButtonsCanvas; 
+        [SerializeField] private Button[] numberButtons; 
+        [SerializeField] private Button replayAudioButton;
+        [SerializeField] private Button gameStartButton; 
         
-        [Header("Timing (Adaptive Mastery)")]
-        [SerializeField] private float baseScanTime = 1.2f;
-        [SerializeField] private float minScanTime = 0.6f;
-        [SerializeField] private float maxScanTime = 2.0f;
-        
-        private float _currentScanTime;
-        private int _totalRounds = 5;
-        private int _currentRound = 0;
+        [Header("Game Assets")]
+        [SerializeField] private ParticleSystem successEffect;
+        [SerializeField] private GameObject guideFeedbackContainer; 
+
+        // State
+        private MathProblemSO currentProblem;
+        private int currentRound = 0;
+        private const int TOTAL_ROUNDS = 5;
+        private int _targetFireflyCount;
 
         private void Start()
         {
-            _currentScanTime = baseScanTime;
-            
-            if (guessCanvas != null)
+            // Initial setup
+            if (answerButtonsCanvas != null)
             {
-                guessCanvas.alpha = 0;
-                guessCanvas.interactable = false;
+                answerButtonsCanvas.alpha = 0;
+                answerButtonsCanvas.interactable = false;
             }
             
-            if (missionStartButton != null)
+            if (gameStartButton != null)
             {
-                missionStartButton.gameObject.SetActive(true);
-                missionStartButton.onClick.AddListener(StartMission);
+                gameStartButton.gameObject.SetActive(true);
+                gameStartButton.onClick.AddListener(StartGame);
             }
             
+            // Wire up number buttons
             for (int i = 0; i < numberButtons.Length; i++)
             {
                 int val = i + 1;
                 numberButtons[i].onClick.AddListener(() => OnNumberSelected(val));
             }
+            
+            // Replay button
+            if (replayAudioButton != null)
+                replayAudioButton.onClick.AddListener(PlayCurrentGameInstruction);
         }
 
-        private void OnEnable()
-        {
-            EventBus.OnGrowthProgressChanged += HandleGrowthChanged;
-        }
-
-        private void OnDisable()
-        {
-            EventBus.OnGrowthProgressChanged -= HandleGrowthChanged;
-        }
-
-        private void HandleGrowthChanged(float growth)
-        {
-            // Adaptive difficulty: Higher progress = shorter flash time
-            _currentScanTime = Mathf.Lerp(maxScanTime, minScanTime, growth);
-        }
-
-        public void StartMission()
+        public void StartGame()
         {
             StartCoroutine(GameRoutine());
         }
 
-        private IEnumerator GameRoutine() 
+        private IEnumerator GameRoutine()
         {
-            _currentRound++;
-            if (missionStartButton != null) missionStartButton.gameObject.SetActive(false);
-            if (guessCanvas != null) { guessCanvas.alpha = 0; guessCanvas.interactable = false; }
+            currentRound++;
+            if (gameStartButton != null) gameStartButton.gameObject.SetActive(false); 
 
-            int targetFireflyCount = Random.Range(1, 6);
-            Debug.Log($"[Forest] Can you spot {targetFireflyCount} fireflies?");
+            // 1. Setup Phase
+            float lookTime = 1.5f;
+            _targetFireflyCount = Random.Range(1, 6); 
             
-            fireflySpawner.SpawnFireflies(targetFireflyCount);
-            yield return new WaitForSeconds(_currentScanTime); 
-            fireflySpawner.HideFireflies();
+            Debug.Log($"[Forest] Game Round {currentRound}: {_targetFireflyCount} fireflies!");
+            fireflySpawner.SpawnFireflies(_targetFireflyCount); 
             
-            if (guessCanvas != null)
+            // 2. Alert Phase
+            yield return new WaitForSeconds(1.0f);
+
+            // 3. Visualization Phase
+            yield return new WaitForSeconds(lookTime);
+
+            // 4. Hide Phase
+            fireflySpawner.HideFireflies(); 
+            
+            // 5. Answer Phase (Show Buttons)
+            if (answerButtonsCanvas != null)
             {
-                guessCanvas.alpha = 1;
-                guessCanvas.interactable = true;
+                answerButtonsCanvas.alpha = 1;
+                answerButtonsCanvas.interactable = true;
+            }
+            
+            Debug.Log("[Forest] How many fireflies did you see?");
+        }
+
+        private void OnNumberSelected(int value)
+        {
+            if (answerButtonsCanvas != null) answerButtonsCanvas.interactable = false;
+
+            if (value == fireflySpawner.CurrentCount) // Correct
+            {
+                StartCoroutine(SuccessRoutine());
+            }
+            else // Incorrect
+            {
+                StartCoroutine(GuideFeedbackRoutine(value));
             }
         }
 
-        private void OnNumberSelected(int guess)
+        private IEnumerator SuccessRoutine()
         {
-            if (guessCanvas != null) guessCanvas.interactable = false;
-
-            if (guess == fireflySpawner.CurrentCount)
+            if (successEffect != null) successEffect.Play();
+            
+            Debug.Log("[Forest] Correct! Well done!");
+            EventBus.OnAnswerAttempted?.Invoke(true, 1000f);
+            
+            yield return new WaitForSeconds(2.0f);
+            
+            if (currentRound < TOTAL_ROUNDS)
             {
-                // Success
-                EventBus.OnAnswerAttempted?.Invoke(true, 1000f);
-                EventBus.OnGuideSpoke?.Invoke(GuidePersonality.KindBunny, "Well done! You counted them all!");
-                
-                // Update growth on success
-                float progress = Mathf.Clamp01((_currentRound / (float)_totalRounds));
-                EventBus.OnGrowthProgressChanged?.Invoke(progress);
-                
-                StartCoroutine(SuccessDelay());
+                PrepareNextRound();
             }
             else
             {
-                // Correction
-                EventBus.OnAnswerAttempted?.Invoke(false, 1000f);
-                EventBus.OnGuideSpoke?.Invoke(GuidePersonality.CuriousCat, "Let's count them together!");
-                
-                // Show current growth progress (replacing SyncRate)
-                EventBus.OnGrowthProgressChanged?.Invoke(Mathf.Max(0f, (_currentRound / (float)_totalRounds) - 0.2f));
-                
-                StartCoroutine(ScaffoldingSequence());
+                EndGame();
             }
         }
 
-        private IEnumerator SuccessDelay()
+        private IEnumerator GuideFeedbackRoutine(int guess)
         {
-            yield return new WaitForSeconds(2f);
-            if (_currentRound < _totalRounds) StartMission();
-            else SceneManager.LoadScene("HubMap");
+            // 1. Reveal (No buzzer)
+            fireflySpawner.ShowFireflies();
+            
+            Debug.Log($"[Forest] Let's count together! There are {fireflySpawner.CurrentCount} fireflies.");
+            EventBus.OnGrowthProgressChanged?.Invoke(Mathf.Max(0f, (currentRound / (float)TOTAL_ROUNDS) - 0.2f));
+            
+            // Show counting sequence
+            yield return StartCoroutine(fireflySpawner.AnimateCountingSequence());
+            
+            yield return new WaitForSeconds(1.0f);
+            
+            PrepareNextRound();
         }
 
-        private IEnumerator ScaffoldingSequence()
+        private void PrepareNextRound()
         {
-            fireflySpawner.ShowFireflies();
-            yield return fireflySpawner.AnimateCountingSequence();
-            yield return new WaitForSeconds(1f);
-            StartMission();
+            if (answerButtonsCanvas != null)
+            {
+                answerButtonsCanvas.alpha = 0;
+                answerButtonsCanvas.interactable = false;
+            }
+            if (gameStartButton != null) gameStartButton.gameObject.SetActive(true);
+        }
+
+        private void EndGame()
+        {
+            SceneManager.LoadScene("HubMap", LoadSceneMode.Single);
+        }
+
+        private void PlayCurrentGameInstruction()
+        {
+            // Audio replay logic
         }
     }
 }

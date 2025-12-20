@@ -13,7 +13,7 @@ namespace QLDMathApp.Editor.Tools
     /// </summary>
     public class AgenticQualityAssurance : EditorWindow
     {
-        [MenuItem("NERV/Agentic QA Probe")]
+        [MenuItem("Forest/Agentic QA Probe")]
         public static void ShowWindow()
         {
             GetWindow<AgenticQualityAssurance>("Agentic QA");
@@ -36,9 +36,9 @@ namespace QLDMathApp.Editor.Tools
                 VerifyCurriculum();
             }
 
-            if (GUILayout.Button("3. Verify NERV Systems (Theme/Magi)"))
+            if (GUILayout.Button("3. Verify Forest Systems (Theme/Magi)"))
             {
-                VerifyNERVSystems();
+                VerifyForestSystems();
             }
 
             _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos);
@@ -124,22 +124,22 @@ namespace QLDMathApp.Editor.Tools
             else _report += "🟡 CURRICULUM WARNINGS DETECTED.\n";
         }
 
-        private void VerifyNERVSystems()
+        private void VerifyForestSystems()
         {
-            _report = "VERIFYING NERV TACTICAL SYSTEMS...\n";
+            _report = "VERIFYING Forest TACTICAL SYSTEMS...\n";
             
             // 1. Theme Asset
-            var themes = AssetDatabase.FindAssets("t:NERVTheme");
-            if (themes.Length > 0) _report += "🟢 NERV THEME: DETECTED.\n";
-            else _report += "🔴 NERV THEME: MISSING. Run Vertical Slice Setup.\n";
+            var themes = AssetDatabase.FindAssets("t:ForestTheme");
+            if (themes.Length > 0) _report += "🟢 Forest THEME: DETECTED.\n";
+            else _report += "🔴 Forest THEME: MISSING. Run Vertical Slice Setup.\n";
 
             // 2. Magi Display (Scene)
-            var magi = Object.FindFirstObjectByType<QLDMathApp.Modules.Magi.MagiDisplay>();
+            var magi = Object.FindFirstObjectByType<QLDMathApp.Modules\.NatureGuides.MagiDisplay>();
             if (magi != null) _report += "🟢 MAGI DISPLAY: ONLINE.\n";
             else _report += "🔴 MAGI DISPLAY: OFFLINE. Scene missing Magi prefab.\n";
 
             // 3. Sync Ratio Manager (Scene/Bootstrap)
-            var sync = Object.FindFirstObjectByType<QLDMathApp.Architecture.Managers.SyncRatioManager>();
+            var sync = Object.FindFirstObjectByType<QLDMathApp.Architecture.Managers.GardenGrowthManager>();
             if (sync != null) _report += "🟢 SYNC RATIO MANAGER: ACTIVE.\n";
             else _report += "🔴 SYNC RATIO MANAGER: NOT FOUND. Check AppBootstrapper.\n";
         }

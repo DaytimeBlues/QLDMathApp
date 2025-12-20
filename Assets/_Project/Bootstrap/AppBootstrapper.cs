@@ -15,67 +15,50 @@ namespace QLDMathApp.Bootstrap
         [SerializeField] private ContentRegistrySO contentRegistry;
         [SerializeField] private string mainMenuSceneName = "MainMenu";
 
-        public static System.Action OnServicesReady;
-
         private IEnumerator Start()
         {
             if (_booted) yield break;
             _booted = true;
 
             DontDestroyOnLoad(gameObject);
-            Debug.Log("[AppBootstrapper] Initializing Core Systems...");
 
-            // 1. Persistence (Sync/Async ready)
-            var persistence = Object.FindFirstObjectByType<QLDMathApp.Architecture.Services.PersistenceService>();
-            if (persistence == null)
+            Debug.Log("[AppBootstrapper] Initializing Forest Services...");
+
+            // Audio system
+            if (AudioQueueService.Instance == null)
             {
-                var persistObj = new GameObject("PersistenceService");
-                persistence = persistObj.AddComponent<QLDMathApp.Architecture.Services.PersistenceService>();
+                var audioObj = new GameObject("AudioQueueService");
+                DontDestroyOnLoad(audioObj);
+                audioObj.AddComponent<AudioQueueService>();
             }
-            yield return persistence.Initialize();
 
-            // 2. Adaptive Mastery & Helper Systems
-            var gardenManager = CreateService<QLDMathApp.Architecture.Managers.GardenGrowthManager>("GardenGrowthManager");
-            var helperSystem = CreateService<QLDMathApp.Modules.Magi.NatureHelperSystem>("NatureHelperSystem");
-            var session = CreateService<QLDMathApp.Architecture.Managers.SessionManager>("SessionManager");
-            var accessibility = CreateService<QLDMathApp.Architecture.UI.AccessibilitySettings>("AccessibilitySettings");
+            // Garden Growth Manager (adaptive difficulty)
+            if (Object.FindFirstObjectByType<QLDMathApp.Architecture.Managers.GardenGrowthManager>() == null)
+            {
+                var growObj = new GameObject("GardenGrowthManager");
+                DontDestroyOnLoad(growObj);
+                growObj.AddComponent<QLDMathApp.Architecture.Managers.GardenGrowthManager>();
+                Debug.Log("[Bootstrap] Garden Growth Manager planted.");
+            }
 
-            // Initialize in parallel
-            yield return gardenManager.Initialize();
-            yield return helperSystem.Initialize();
-            yield return session.Initialize();
-            yield return accessibility.Initialize();
+            // Nature Helper System (feedback guides)
+            if (Object.FindFirstObjectByType<QLDMathApp.Modules\.NatureGuides.NatureHelperSystem>() == null)
+            {
+                var guideObj = new GameObject("NatureHelperSystem");
+                DontDestroyOnLoad(guideObj);
+                guideObj.AddComponent<QLDMathApp.Modules\.NatureGuides.NatureHelperSystem>();
+                Debug.Log("[Bootstrap] Forest Guides awakened.");
+            }
 
-            // 3. Data Warmup
+            // Data warmup
             if (contentRegistry != null)
                 Debug.Log($"[AppBootstrapper] Library Warmup: {contentRegistry.AllProblems.Count} activities ready.");
 
-            // Verification of Service Readiness
-            bool allReady = persistence.IsInitialized && gardenManager.IsInitialized && 
-                            helperSystem.IsInitialized && session.IsInitialized && accessibility.IsInitialized;
-
-            if (allReady)
-            {
-                Debug.Log("[AppBootstrapper] Services Validated. Signalling Ready...");
-                OnServicesReady?.Invoke();
-                SceneManager.LoadScene(mainMenuSceneName, LoadSceneMode.Single);
-            }
-            else
-            {
-                Debug.LogError("[AppBootstrapper] Critical Service Failure during initialization!");
-            }
-        }
-
-        private T CreateService<T>(string name) where T : MonoBehaviour, IInitializable
-        {
-            var service = Object.FindFirstObjectByType<T>();
-            if (service == null)
-            {
-                var go = new GameObject(name);
-                DontDestroyOnLoad(go);
-                service = go.AddComponent<T>();
-            }
-            return service;
+            // Wait one frame for systems to initialize (replaces brittle WaitForSeconds)
+            yield return null;
+            
+            Debug.Log("[AppBootstrapper] Enchanted Forest Initialized. Entering Main Menu...");
+            SceneManager.LoadScene(mainMenuSceneName, LoadSceneMode.Single); 
         }
     }
 }

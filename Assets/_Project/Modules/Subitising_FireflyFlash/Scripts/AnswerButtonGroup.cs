@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace QLDMathApp.Modules.Subitising
 {
     /// <summary>
-    /// NERV TERMINAL GROUP: Manages high-tech pilot response terminals.
+    /// Forest TERMINAL GROUP: Manages high-tech pilot response terminals.
     /// Large touch targets (min 60x60 units) for steady pilot input.
     /// </summary>
     public class AnswerButtonGroup : MonoBehaviour
@@ -16,11 +16,11 @@ namespace QLDMathApp.Modules.Subitising
         [Header("Settings")]
         [SerializeField] private bool shufflePositions = true;
         
-        private AngelInterceptController _controller;
+        private FireflyInterceptController _controller;
 
         private void Awake()
         {
-            _controller = GetComponentInParent<AngelInterceptController>();
+            _controller = GetComponentInParent<FireflyInterceptController>();
         }
 
         /// <summary>

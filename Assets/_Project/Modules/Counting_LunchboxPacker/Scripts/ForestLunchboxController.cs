@@ -17,7 +17,7 @@ namespace QLDMathApp.Modules.Counting
     public class ForestLunchboxController : MonoBehaviour
     {
         [Header("Garden Theme")]
-        [SerializeField] private NERVTheme theme; // TODO: Replace with GardenTheme
+        [SerializeField] private ForestTheme theme; // TODO: Replace with GardenTheme
 
         [Header("Basket References")]
         [SerializeField] private Transform supplySpawnArea; 
@@ -109,7 +109,7 @@ namespace QLDMathApp.Modules.Counting
             // Check if activity objective met
             if (_suppliedCount >= _targetCount)
             {
-                StartCoroutine(CompleteSupplyMission());
+                StartCoroutine(CompleteSupplyForestRound());
             }
         }
 
@@ -118,7 +118,7 @@ namespace QLDMathApp.Modules.Counting
             item.ReturnToStart();
         }
 
-        private IEnumerator CompleteSupplyMission()
+        private IEnumerator CompleteSupplyForestRound()
         {
             yield return new WaitForSeconds(0.3f);
             
