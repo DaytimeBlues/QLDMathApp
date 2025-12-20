@@ -1,0 +1,114 @@
+#!/bin/sh
+# ================================================================
+# PRE-COMMIT HOOK: Multi-Pass Code Quality Gate
+# ================================================================
+# This hook runs before every commit to catch common errors.
+# To bypass (emergency only): git commit --no-verify
+# 
+# INSTALLATION:
+# Copy this file to: .git/hooks/pre-commit
+# Make executable: chmod +x .git/hooks/pre-commit
+# ================================================================
+
+echo "🔍 Running Pre-Commit Quality Checks..."
+
+# ----------------------------------------------------------------
+# PASS 1: Basic Syntax Check (Brace Balance)
+# ----------------------------------------------------------------
+echo "  [Pass 1] Checking brace balance..."
+
+STAGED_CS_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.cs$')
+
+if [ -n "$STAGED_CS_FILES" ]; then
+    for file in $STAGED_CS_FILES; do
+        if [ -f "$file" ]; then
+            OPEN_BRACES=$(grep -o '{' "$file" | wc -l)
+            CLOSE_BRACES=$(grep -o '}' "$file" | wc -l)
+            
+            if [ "$OPEN_BRACES" -ne "$CLOSE_BRACES" ]; then
+                echo "  ❌ FAIL: Unbalanced braces in $file"
+                echo "     Open: $OPEN_BRACES, Close: $CLOSE_BRACES"
+                exit 1
+            fi
+        fi
+    done
+    echo "  ✅ Pass 1: Brace balance OK"
+else
+    echo "  ⏭️  Pass 1: No C# files staged, skipping"
+fi
+
+# ----------------------------------------------------------------
+# PASS 2: Namespace Check (UnityEngine/System present)
+# ----------------------------------------------------------------
+echo "  [Pass 2] Checking for missing namespaces..."
+
+if [ -n "$STAGED_CS_FILES" ]; then
+    for file in $STAGED_CS_FILES; do
+        if [ -f "$file" ]; then
+            # Check if file uses MonoBehaviour but lacks UnityEngine
+            if grep -q 'MonoBehaviour' "$file" && ! grep -q 'using UnityEngine;' "$file"; then
+                echo "  ❌ FAIL: $file uses MonoBehaviour but missing 'using UnityEngine;'"
+                exit 1
+            fi
+            
+            # Check if file uses IEnumerator but lacks System.Collections
+            if grep -q 'IEnumerator' "$file" && ! grep -q 'using System.Collections;' "$file"; then
+                echo "  ❌ FAIL: $file uses IEnumerator but missing 'using System.Collections;'"
+                exit 1
+            fi
+        fi
+    done
+    echo "  ✅ Pass 2: Namespace checks OK"
+else
+    echo "  ⏭️  Pass 2: No C# files staged, skipping"
+fi
+
+# ----------------------------------------------------------------
+# PASS 3: Duplicate Code Detection (basic)
+# ----------------------------------------------------------------
+echo "  [Pass 3] Checking for duplicate method signatures..."
+
+if [ -n "$STAGED_CS_FILES" ]; then
+    for file in $STAGED_CS_FILES; do
+        if [ -f "$file" ]; then
+            # Check for duplicate method definitions
+            METHODS=$(grep -E '^\s*(public|private|protected|internal)\s+\w+\s+\w+\s*\(' "$file" | sort | uniq -d)
+            if [ -n "$METHODS" ]; then
+                echo "  ⚠️  WARNING: Possible duplicate methods in $file:"
+                echo "$METHODS"
+            fi
+        fi
+    done
+    echo "  ✅ Pass 3: Duplicate check complete"
+else
+    echo "  ⏭️  Pass 3: No C# files staged, skipping"
+fi
+
+# ----------------------------------------------------------------
+# PASS 4: Theme Terminology Check (NERV/Angel purge)
+# ----------------------------------------------------------------
+echo "  [Pass 4] Checking for banned terminology..."
+
+BANNED_TERMS="NERV|Angel|Tactical|EntryPlug|SyncRatio"
+
+if [ -n "$STAGED_CS_FILES" ]; then
+    for file in $STAGED_CS_FILES; do
+        if [ -f "$file" ]; then
+            if grep -qE "$BANNED_TERMS" "$file"; then
+                echo "  ❌ FAIL: Banned terminology found in $file"
+                grep -nE "$BANNED_TERMS" "$file"
+                exit 1
+            fi
+        fi
+    done
+    echo "  ✅ Pass 4: Terminology check OK"
+else
+    echo "  ⏭️  Pass 4: No C# files staged, skipping"
+fi
+
+# ----------------------------------------------------------------
+# ALL PASSES COMPLETE
+# ----------------------------------------------------------------
+echo ""
+echo "🌲 All quality checks passed! Committing..."
+exit 0
