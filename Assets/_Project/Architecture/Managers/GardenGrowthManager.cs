@@ -1,5 +1,5 @@
-using UnityEngine;
 using QLDMathApp.Architecture.Events;
+using System.Collections;
 
 namespace QLDMathApp.Architecture.Managers
 {
@@ -7,7 +7,7 @@ namespace QLDMathApp.Architecture.Managers
     /// GARDEN GROWTH MANAGER: Manages adaptive difficulty and performance tracking.
     /// Uses the "Magic Garden" metaphor: success makes the garden bloom.
     /// </summary>
-    public class GardenGrowthManager : MonoBehaviour, IInitializable
+    public class GardenGrowthManager : MonoBehaviour, QLDMathApp.Architecture.IInitializable
     {
         [Header("Garden Calibration")]
         [SerializeField] private float baseGrowthRate = 0.4f;
