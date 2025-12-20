@@ -27,22 +27,22 @@ namespace QLDMathApp.Architecture.Events
         public static Action OnPlayCorrectionFeedback;
         #endregion
 
-        #region Enchanted Forest Events
-        // Param: Bloom Rate (0.0 to 1.0)
-        public static Action<float> OnGardenBloomChanged;
+        #region Core Gameplay Framework (Generic)
+        // Param: Mastery Grade (0.0 to 1.0)
+        public static Action<float> OnMasteryLevelChanged;
         #endregion
 
-        #region Forest Helper Events
-        // Param: Helper (Owl, Bunny, Cat), Message
-        public static Action<ForestHelper, string> OnHelperConsulted;
+        #region Pedagogical Agent Events
+        // Param: Agent Identifier, Message
+        public static Action<PedagogicalAgent, string> OnAgentFeedbackRequested;
         #endregion
     }
 
-    public enum ForestHelper
+    public enum PedagogicalAgent
     {
-        Owl,   // Wise/Rational
-        Bunny, // Kind/Nurturing
-        Cat    // Clever/Intuitive
+        Rational,  // Wise (e.g. Owl)
+        Nurturing, // Kind (e.g. Bunny)
+        Intuitive  // Clever (e.g. Cat)
     }
 
     public enum GameState

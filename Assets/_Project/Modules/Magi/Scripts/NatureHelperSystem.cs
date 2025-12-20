@@ -25,25 +25,25 @@ namespace QLDMathApp.Modules.Magi
         {
             if (isCorrect)
             {
-                // Successful blooming
+                // Successful blooming mastery
                 if (responseTime < 1500f)
                 {
-                    // Owl (Wise) triggers on quick mastery
-                    EventBus.OnHelperConsulted?.Invoke(ForestHelper.Owl, "Whoo! You and the forest are working in perfect harmony.");
+                    // Rational Agent (Owl) triggers on quick mastery
+                    EventBus.OnAgentFeedbackRequested?.Invoke(PedagogicalAgent.Rational, "Whoo! You and the forest are working in perfect harmony.");
                 }
                 else
                 {
-                    // Bunny (Kind) triggered on successful but slower answer
-                    EventBus.OnHelperConsulted?.Invoke(ForestHelper.Bunny, "What a wonderful job! You found the answer so carefully.");
+                    // Nurturing Agent (Bunny) triggered on successful but slower answer
+                    EventBus.OnAgentFeedbackRequested?.Invoke(PedagogicalAgent.Nurturing, "What a wonderful job! You found the answer so carefully.");
                 }
             }
             else
             {
-                // Soft support - Cat provides clever advice
-                EventBus.OnHelperConsulted?.Invoke(ForestHelper.Cat, "Mew! Maybe try looking at the very middle of the clearing next time.");
+                // Soft support - Intuitive Agent (Cat) provides clever advice
+                EventBus.OnAgentFeedbackRequested?.Invoke(PedagogicalAgent.Intuitive, "Mew! Maybe try looking at the very middle of the clearing next time.");
                 
-                // Owl provides a gentle reminder
-                EventBus.OnHelperConsulted?.Invoke(ForestHelper.Owl, "Let's take a deep breath and look at the fireflies again, little sprout.");
+                // Rational Agent (Owl) provides a gentle reminder
+                EventBus.OnAgentFeedbackRequested?.Invoke(PedagogicalAgent.Rational, "Let's take a deep breath and look at the fireflies again, little sprout.");
             }
         }
     }

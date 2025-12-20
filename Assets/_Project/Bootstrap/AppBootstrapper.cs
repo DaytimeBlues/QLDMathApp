@@ -31,28 +31,29 @@ namespace QLDMathApp.Bootstrap
                 audioObj.AddComponent<AudioQueueService>();
             }
 
-            // NERV Adaptive Systems
-            if (Object.FindFirstObjectByType<QLDMathApp.Architecture.Managers.SyncRatioManager>() == null)
+            // Enchanted Forest Mastery systems
+            if (Object.FindFirstObjectByType<QLDMathApp.Architecture.Managers.GardenGrowthManager>() == null)
             {
-                var syncManagerObj = new GameObject("NERV_SyncRatioManager");
-                DontDestroyOnLoad(syncManagerObj);
-                syncManagerObj.AddComponent<QLDMathApp.Architecture.Managers.SyncRatioManager>();
+                var growObj = new GameObject("GardenGrowthManager");
+                DontDestroyOnLoad(growObj);
+                growObj.AddComponent<QLDMathApp.Architecture.Managers.GardenGrowthManager>();
             }
 
-            if (Object.FindFirstObjectByType<QLDMathApp.Modules.Magi.MagiSystem>() == null)
+            if (Object.FindFirstObjectByType<QLDMathApp.Modules.Magi.NatureHelperSystem>() == null)
             {
-                var magiObj = new GameObject("MAGI_System");
-                DontDestroyOnLoad(magiObj);
-                magiObj.AddComponent<QLDMathApp.Modules.Magi.MagiSystem>();
+                var guideObj = new GameObject("NatureHelperSystem");
+                DontDestroyOnLoad(guideObj);
+                guideObj.AddComponent<QLDMathApp.Modules.Magi.NatureHelperSystem>();
             }
 
-            // Data warmup (optional)
+            // Data warmup
             if (contentRegistry != null)
-                Debug.Log($"[AppBootstrapper] Registry Loaded: {contentRegistry.AllProblems.Count} problems.");
+                Debug.Log($"[AppBootstrapper] Library Warmup: {contentRegistry.AllProblems.Count} activities ready.");
 
-            yield return null;
-
-            Debug.Log("[AppBootstrapper] Initialization Complete. Loading Main Menu...");
+            // HARDENED STARTUP (Audit Fix): Wait for systems to settle
+            yield return new WaitForSeconds(0.1f); 
+            
+            Debug.Log("[AppBootstrapper] Enchanted Forest Initialized. Entering Main Menu...");
             SceneManager.LoadScene(mainMenuSceneName, LoadSceneMode.Single); 
         }
     }
