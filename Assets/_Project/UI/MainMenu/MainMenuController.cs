@@ -18,7 +18,7 @@ namespace QLDMathApp.UI.MainMenu
         private void PlayGame()
         {
             // Load Firefly Intercept scene
-            // 'Single' mode to clear Tactical Display memory
+            // 'Single' mode to clear Garden memory
             Debug.Log("[Forest] PATTERN BLUE: Initiating Firefly Intercept...");
             SceneManager.LoadScene("FireflyIntercept", LoadSceneMode.Single);
         }

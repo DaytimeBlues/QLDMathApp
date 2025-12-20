@@ -8,7 +8,7 @@ namespace QLDMathApp.Modules.Counting
 {
     /// <summary>
     /// Forest SUPPLY MODULE: Draggable module for Entry Plug Supply.
-    /// Large touch target, smooth drag, tactical snap-back on ForestRound failure.
+    /// Large touch target, smooth drag, playful snap-back on ForestRound failure.
     /// </summary>
     [RequireComponent(typeof(CanvasGroup))]
     public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
@@ -100,14 +100,14 @@ namespace QLDMathApp.Modules.Counting
                 _audioSource.PlayOneShot(dropSound);
             }
             
-            // Check if dropped on Entry Plug
+            // Check if dropped on Lunchbox Slot
             var results = new System.Collections.Generic.List<RaycastResult>();
             EventSystem.current.RaycastAll(eventData, results);
             
             bool connectedToPlug = false;
             foreach (var result in results)
             {
-                if (result.gameObject.GetComponent<EntryPlugSlot>() != null)
+                if (result.gameObject.GetComponent<LunchboxSlot>() != null)
                 {
                     connectedToPlug = true;
                     break;

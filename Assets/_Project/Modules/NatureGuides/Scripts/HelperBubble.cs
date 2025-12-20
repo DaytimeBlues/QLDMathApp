@@ -4,7 +4,7 @@ using TMPro;
 using QLDMathApp.Architecture.Events;
 using System.Collections;
 
-namespace QLDMathApp.Modules\.NatureGuides
+namespace QLDMathApp.Modules.NatureGuides
 {
     /// <summary>
     /// HELPER BUBBLE: Visualizes feedback from the Forest Guides (Owl, Bunny, Cat).

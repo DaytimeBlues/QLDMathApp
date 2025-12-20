@@ -48,13 +48,6 @@ namespace QLDMathApp.UI
 
         private void Start()
         {
-            // Re-subscribe in case service wasn't ready in OnEnable
-            if (AccessibilitySettingsService.Instance != null)
-            {
-                AccessibilitySettingsService.Instance.Changed -= ApplyTheme;
-                AccessibilitySettingsService.Instance.Changed += ApplyTheme;
-            }
-
             ApplyTheme();
         }
 

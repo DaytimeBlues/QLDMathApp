@@ -147,10 +147,10 @@ namespace QLDMathApp.Editor
             bgRT.offsetMax = Vector2.zero;
 
             // Scanlines (Procedural)
-            var linesGO = new GameObject("TacticalScanlines", typeof(Image));
+            var linesGO = new GameObject("ForestMist", typeof(Image));
             linesGO.transform.SetParent(canvasGO.transform, false);
             var linesImg = linesGO.GetComponent<Image>();
-            linesImg.color = new Color(0f, 1f, 0f, 0.03f); // Faint green overlay
+            linesImg.color = new Color(0.7f, 1f, 0.4f, 0.03f); // Faint forest glow
             var linesRT = linesGO.GetComponent<RectTransform>();
             linesRT.anchorMin = Vector2.zero;
             linesRT.anchorMax = Vector2.one;
@@ -252,22 +252,22 @@ namespace QLDMathApp.Editor
             scaler.referenceResolution = new Vector2(1920, 1080);
             canvasGO.AddComponent<GraphicRaycaster>();
 
-            // Background (Tokyo-3 Radar)
+            // Background (Enchanted Garden)
             var bgGO = new GameObject("Background", typeof(Image));
             bgGO.transform.SetParent(canvasGO.transform, false);
             var bgImg = bgGO.GetComponent<Image>();
-            bgImg.color = new Color(0.02f, 0.02f, 0.05f); // Deep tactical black
+            bgImg.color = new Color(0.02f, 0.05f, 0.02f); // Garden Twilight
             var bgRT = bgGO.GetComponent<RectTransform>();
             bgRT.anchorMin = Vector2.zero;
             bgRT.anchorMax = Vector2.one;
             bgRT.offsetMin = Vector2.zero;
             bgRT.offsetMax = Vector2.zero;
 
-            // Interception Field (formerly jarContainer)
-            var fieldGO = new GameObject("InterceptionField", typeof(Image), typeof(CanvasGroup));
+            // Firefly Clearing (formerly interception field)
+            var fieldGO = new GameObject("FireflyClearing", typeof(Image), typeof(CanvasGroup));
             fieldGO.transform.SetParent(canvasGO.transform, false);
             var fieldImg = fieldGO.GetComponent<Image>();
-            fieldImg.color = new Color(0.1f, 1f, 0.4f, 0.05f); // Sync Green tint
+            fieldImg.color = new Color(0.7f, 1f, 0.4f, 0.05f); // Forest Glow tint
             var fieldRT = fieldGO.GetComponent<RectTransform>();
             fieldRT.sizeDelta = new Vector2(1200, 800);
             var fieldGroup = fieldGO.GetComponent<CanvasGroup>();
@@ -311,9 +311,9 @@ namespace QLDMathApp.Editor
             gContentTxt.fontSize = 24;
             gContentTxt.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             
-            var hBubble = guideGO.AddComponent<QLDMathApp.Modules\.NatureGuides.HelperBubble>();
+            var hBubble = guideGO.AddComponent<QLDMathApp.Modules.NatureGuides.HelperBubble>();
             SerializedObject hso = new SerializedObject(hBubble);
-            hso.FindProperty("personalityLabel").objectReferenceValue = gTitleTxt;
+            hso.FindProperty("agentNameLabel").objectReferenceValue = gTitleTxt;
             hso.FindProperty("messageText").objectReferenceValue = gContentTxt;
             hso.FindProperty("displayGroup").objectReferenceValue = guideGO.GetComponent<CanvasGroup>();
             hso.ApplyModifiedProperties();

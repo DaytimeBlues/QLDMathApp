@@ -36,7 +36,7 @@ namespace QLDMathApp.Editor.Tools
                 VerifyCurriculum();
             }
 
-            if (GUILayout.Button("3. Verify Forest Systems (Theme/Magi)"))
+            if (GUILayout.Button("3. Verify Forest Systems (Theme/Guides)"))
             {
                 VerifyForestSystems();
             }
@@ -126,22 +126,22 @@ namespace QLDMathApp.Editor.Tools
 
         private void VerifyForestSystems()
         {
-            _report = "VERIFYING Forest TACTICAL SYSTEMS...\n";
+            _report = "VERIFYING FOREST NATURE SYSTEMS...\n";
             
             // 1. Theme Asset
             var themes = AssetDatabase.FindAssets("t:ForestTheme");
-            if (themes.Length > 0) _report += "🟢 Forest THEME: DETECTED.\n";
-            else _report += "🔴 Forest THEME: MISSING. Run Vertical Slice Setup.\n";
+            if (themes.Length > 0) _report += "🟢 FOREST THEME: DETECTED.\n";
+            else _report += "🔴 FOREST THEME: MISSING. Run Vertical Slice Setup.\n";
 
-            // 2. Magi Display (Scene)
-            var magi = Object.FindFirstObjectByType<QLDMathApp.Modules\.NatureGuides.MagiDisplay>();
-            if (magi != null) _report += "🟢 MAGI DISPLAY: ONLINE.\n";
-            else _report += "🔴 MAGI DISPLAY: OFFLINE. Scene missing Magi prefab.\n";
+            // 2. Helper Bubble (Scene)
+            var bubble = Object.FindFirstObjectByType<QLDMathApp.Modules.NatureGuides.HelperBubble>();
+            if (bubble != null) _report += "🟢 HELPER BUBBLE: ONLINE.\n";
+            else _report += "🔴 HELPER BUBBLE: OFFLINE. Scene missing Helper Bubble prefab.\n";
 
-            // 3. Sync Ratio Manager (Scene/Bootstrap)
-            var sync = Object.FindFirstObjectByType<QLDMathApp.Architecture.Managers.GardenGrowthManager>();
-            if (sync != null) _report += "🟢 SYNC RATIO MANAGER: ACTIVE.\n";
-            else _report += "🔴 SYNC RATIO MANAGER: NOT FOUND. Check AppBootstrapper.\n";
+            // 3. Garden Growth Manager (Scene/Bootstrap)
+            var growth = Object.FindFirstObjectByType<QLDMathApp.Architecture.Managers.GardenGrowthManager>();
+            if (growth != null) _report += "🟢 GARDEN GROWTH MANAGER: ACTIVE.\n";
+            else _report += "🔴 GARDEN GROWTH MANAGER: NOT FOUND. Check AppBootstrapper.\n";
         }
     }
 }

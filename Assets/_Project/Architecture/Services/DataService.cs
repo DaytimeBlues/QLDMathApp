@@ -1,68 +1,114 @@
 using UnityEngine;
-using QLDMathApp.Architecture.Events;
+using System;
 using System.Collections.Generic;
+using QLDMathApp.Architecture.Events;
 
 namespace QLDMathApp.Architecture.Services
 {
     /// <summary>
-    /// OFFLINE-FIRST: Logs all interactions to local storage (mocked here).
-    /// Implements Stealth Assessment.
+    /// STEALTH ASSESSMENT: Logs all pedagogical interactions for longitudinal analysis.
+    /// Decoupled from storage details via IInteractionLogStore.
+    /// Manages session lifecycle and high-fidelity timing metrics.
     /// </summary>
     public class DataService : MonoBehaviour
     {
-        // In a real implementation, this would be an SQLite Connection
-        private List<InteractionLog> _localSessionLog = new List<InteractionLog>();
+        public static DataService Instance { get; private set; }
+
+        private IInteractionLogStore _logStore;
+        private string _sessionUid;
+        private DateTime _currentProblemStartTime;
+        private bool _isProblemActive;
+
+        private void Awake()
+        {
+            if (Instance == null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject);
+                
+                // AUDIT FIX: Decoupled storage implementation
+                _logStore = new JsonInteractionStore();
+                _sessionUid = Guid.NewGuid().ToString();
+                
+                Debug.Log($"[DataService] Session Started: {_sessionUid}");
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
 
         private void OnEnable()
         {
+            EventBus.OnProblemStarted += HandleProblemStarted;
             EventBus.OnAnswerAttempted += LogInteraction;
         }
 
         private void OnDisable()
         {
+            EventBus.OnProblemStarted -= HandleProblemStarted;
             EventBus.OnAnswerAttempted -= LogInteraction;
+        }
+
+        private void HandleProblemStarted(string questionId)
+        {
+            _currentProblemStartTime = DateTime.UtcNow;
+            _isProblemActive = true;
         }
 
         private void LogInteraction(bool isCorrect, float responseTimeMs)
         {
-            // Create the log entry
+            if (!_isProblemActive) return;
+
+            // PERFORMANCE: Standardise units to seconds
+            float responseTimeSeconds = responseTimeMs / 1000f;
+            
+            // STEALTH ASSESSMENT: Real hesitation calculation
+            // Time from problem appearance to the moment the answer was finalized (roughly)
+            float totalTimeSinceStart = (float)(DateTime.UtcNow - _currentProblemStartTime).TotalSeconds;
+            
+            // For now, we estimate hesitation as a portion of the total time, 
+            // but in a future update, we can track the first touch event.
+            float hesitationTime = totalTimeSinceStart - responseTimeSeconds;
+
             var log = new InteractionLog
             {
-                timestamp = System.DateTime.UtcNow,
+                sessionUid = _sessionUid,
+                timestamp = DateTime.UtcNow,
                 isCorrect = isCorrect,
-                responseTimeMs = responseTimeMs,
-                // Stealth Assessment Metrics
-                hesitationTime = UnityEngine.Input.touchCount > 0 ? 0.5f : 0f, // Mock logic
-                dragDeviation = 0.1f // Mock logic
+                responseTime = responseTimeSeconds,
+                hesitationTime = Mathf.Max(0, hesitationTime),
+                dragDeviation = 0.1f, // TODO: Link to InteractionController motor data
+                isSimulated = false
             };
 
-            _localSessionLog.Add(log);
-            
-            // Persist to Local DB immediately
-            SaveToLocalDatabase(log);
+            _logStore.SaveLog(log);
+            _isProblemActive = false;
 
-            Debug.Log($"[StealthAssessment] Logged: Correct={isCorrect}, Time={responseTimeMs}ms");
+            Debug.Log($"[StealthAssessment] Logged: Correct={isCorrect}, Response={responseTimeSeconds}s, Hesitation={hesitationTime:F2}s");
         }
 
-        private void SaveToLocalDatabase(InteractionLog log)
+        public List<InteractionLog> GetSessionLogs()
         {
-            // TODO: SQLite.Insert(log);
-            // This ensures data is safe even if the battery dies 1 second later.
+            return _logStore.GetAllLogs().FindAll(l => l.sessionUid == _sessionUid);
         }
         
         public void SyncToCloud()
         {
-            // TODO: Check internet -> Upload _localSessionLog -> Clear local if success
+            // TODO: Implementation for cloud upload using specific sync status per record
+            Debug.Log("[DataService] Cloud sync placeholder triggered.");
         }
     }
 
-    [System.Serializable]
+    [Serializable]
     public struct InteractionLog
     {
-        public System.DateTime timestamp;
+        public string sessionUid;
+        public DateTime timestamp;
         public bool isCorrect;
-        public float responseTimeMs;
-        public float hesitationTime; // Time before first touch
+        public float responseTime; // Seconds
+        public float hesitationTime; // Seconds
         public float dragDeviation;  // Motor control proxy
+        public bool isSimulated;
     }
 }

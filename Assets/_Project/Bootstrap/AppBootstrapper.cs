@@ -42,12 +42,39 @@ namespace QLDMathApp.Bootstrap
             }
 
             // Nature Helper System (feedback guides)
-            if (Object.FindFirstObjectByType<QLDMathApp.Modules\.NatureGuides.NatureHelperSystem>() == null)
+            if (Object.FindFirstObjectByType<QLDMathApp.Modules.NatureGuides.NatureHelperSystem>() == null)
             {
                 var guideObj = new GameObject("NatureHelperSystem");
                 DontDestroyOnLoad(guideObj);
-                guideObj.AddComponent<QLDMathApp.Modules\.NatureGuides.NatureHelperSystem>();
+                guideObj.AddComponent<QLDMathApp.Modules.NatureGuides.NatureHelperSystem>();
                 Debug.Log("[Bootstrap] Forest Guides awakened.");
+            }
+
+            // Persistence Service (secure JSON storage)
+            if (PersistenceService.Instance == null)
+            {
+                var persistObj = new GameObject("PersistenceService");
+                DontDestroyOnLoad(persistObj);
+                persistObj.AddComponent<PersistenceService>();
+                Debug.Log("[Bootstrap] Persistence Service grounded.");
+            }
+
+            // Accessibility Settings Service (inclusive design)
+            if (AccessibilitySettingsService.Instance == null)
+            {
+                var accObj = new GameObject("AccessibilitySettingsService");
+                DontDestroyOnLoad(accObj);
+                accObj.AddComponent<AccessibilitySettingsService>();
+                Debug.Log("[Bootstrap] Accessibility Service projected.");
+            }
+
+            // Data Service (telemetry)
+            if (Object.FindFirstObjectByType<QLDMathApp.Architecture.Services.DataService>() == null)
+            {
+                var dataObj = new GameObject("DataService");
+                DontDestroyOnLoad(dataObj);
+                dataObj.AddComponent<QLDMathApp.Architecture.Services.DataService>();
+                Debug.Log("[Bootstrap] Data Service energized.");
             }
 
             // Data warmup

@@ -1,16 +1,21 @@
 using System;
 using UnityEngine;
+using UnityEngine.Audio;
+using QLDMathApp.Architecture.Services;
 
-namespace QLDMathApp.UI.Services
+namespace QLDMathApp.Architecture.Services
 {
     /// <summary>
     /// ACCESSIBILITY SETTINGS SERVICE: Centralized, persistent settings management.
-    /// Replaces fragile singleton assumptions with a proper service pattern.
-    /// Persists to PlayerPrefs and broadcasts changes via event.
+    /// AUDIT FIX: Consolidated version using PersistenceService (JSON).
+    /// Provides inclusive design for diverse learners (Zen Mode, High Contrast, Reduced Motion).
     /// </summary>
     public sealed class AccessibilitySettingsService : MonoBehaviour
     {
         public static AccessibilitySettingsService Instance { get; private set; }
+
+        [Header("References")]
+        [SerializeField] private AudioMixer masterMixer;
 
         public bool ZenMode { get; private set; }
         public bool HighContrast { get; private set; }
@@ -21,9 +26,10 @@ namespace QLDMathApp.UI.Services
         /// </summary>
         public event Action Changed;
 
-        private const string KeyZen = "acc_zen";
-        private const string KeyContrast = "acc_contrast";
-        private const string KeyMotion = "acc_motion";
+        // Legacy event support for backward compatibility
+        public static event Action<bool> OnZenModeChanged;
+        public static event Action<bool> OnHighContrastChanged;
+        public static event Action<bool> OnReducedMotionChanged;
 
         private void Awake()
         {
@@ -44,7 +50,9 @@ namespace QLDMathApp.UI.Services
             if (ZenMode == value) return;
             ZenMode = value;
             Save();
+            ApplyAudioSettings();
             Changed?.Invoke();
+            OnZenModeChanged?.Invoke(value);
         }
 
         public void SetHighContrast(bool value)
@@ -53,6 +61,7 @@ namespace QLDMathApp.UI.Services
             HighContrast = value;
             Save();
             Changed?.Invoke();
+            OnHighContrastChanged?.Invoke(value);
         }
 
         public void SetReducedMotion(bool value)
@@ -61,21 +70,45 @@ namespace QLDMathApp.UI.Services
             ReducedMotion = value;
             Save();
             Changed?.Invoke();
+            OnReducedMotionChanged?.Invoke(value);
         }
 
         private void Load()
         {
-            ZenMode = PlayerPrefs.GetInt(KeyZen, 0) == 1;
-            HighContrast = PlayerPrefs.GetInt(KeyContrast, 0) == 1;
-            ReducedMotion = PlayerPrefs.GetInt(KeyMotion, 0) == 1;
+            if (PersistenceService.Instance == null)
+            {
+                Debug.LogWarning("[AccessibilityService] PersistenceService not ready, using defaults.");
+                return;
+            }
+
+            var data = PersistenceService.Instance.Load<AppUserData>();
+            ZenMode = data.ZenMode;
+            HighContrast = data.HighContrast;
+            ReducedMotion = data.ReducedMotion;
+            
+            ApplyAudioSettings();
         }
 
         private void Save()
         {
-            PlayerPrefs.SetInt(KeyZen, ZenMode ? 1 : 0);
-            PlayerPrefs.SetInt(KeyContrast, HighContrast ? 1 : 0);
-            PlayerPrefs.SetInt(KeyMotion, ReducedMotion ? 1 : 0);
-            PlayerPrefs.Save();
+            if (PersistenceService.Instance == null) return;
+            
+            var data = PersistenceService.Instance.Load<AppUserData>();
+            data.ZenMode = ZenMode;
+            data.HighContrast = HighContrast;
+            data.ReducedMotion = ReducedMotion;
+            
+            PersistenceService.Instance.Save(data);
+        }
+
+        private void ApplyAudioSettings()
+        {
+            if (masterMixer != null)
+            {
+                // ZEN MODE: Reduce audio stimulation (mute music, keep voices)
+                masterMixer.SetFloat("MusicVolume", ZenMode ? -80f : 0f);
+                masterMixer.SetFloat("VoiceVolume", 0f);
+            }
         }
 
         /// <summary>

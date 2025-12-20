@@ -2,7 +2,7 @@ using QLDMathApp.Architecture.Events;
 using QLDMathApp.Architecture;
 using System.Collections;
 
-namespace QLDMathApp.Modules\.NatureGuides
+namespace QLDMathApp.Modules.NatureGuides
 {
     /// <summary>
     /// FOREST HELPER SYSTEM: Provides friendly feedback and guidance.

@@ -19,9 +19,25 @@ namespace QLDMathApp.Modules.Subitising
         [Header("Pattern Settings")]
         [SerializeField] private bool useDicePatterns = true;
         [SerializeField] private float spawnRadius = 1.5f;
+        [SerializeField] private int poolSize = 10;
         
         private List<FireflyAnimator> _activeFireflies = new List<FireflyAnimator>();
         private List<FireflyAnimator> _fireflyPool = new List<FireflyAnimator>();
+
+        private void Start()
+        {
+            PrewarmPool();
+        }
+
+        private void PrewarmPool()
+        {
+            for (int i = 0; i < poolSize; i++)
+            {
+                FireflyAnimator firefly = Instantiate(fireflyPrefab, jarContainer).GetComponent<FireflyAnimator>();
+                firefly.gameObject.SetActive(false);
+                _fireflyPool.Add(firefly);
+            }
+        }
         
         // Standard dice patterns (normalized -1 to 1 coordinates)
         private static readonly Vector2[][] DicePatterns = new Vector2[][]

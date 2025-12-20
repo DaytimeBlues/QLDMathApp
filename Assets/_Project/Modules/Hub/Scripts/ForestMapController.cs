@@ -15,7 +15,7 @@ namespace QLDMathApp.Modules.Hub
     public class ForestMapController : MonoBehaviour
     {
         [Header("Garden Theme")]
-        [SerializeField] private Architecture.UI.ForestTheme theme; // TODO: Replace with GardenTheme
+        [SerializeField] private Architecture.UI.ForestTheme theme; 
 
         [Header("Clearing References")]
         [SerializeField] private Transform guideTransform; 
@@ -33,6 +33,24 @@ namespace QLDMathApp.Modules.Hub
         private MapNode _currentClearing;
         private bool _isMoving;
 
+        private void OnEnable()
+        {
+            foreach (var node in forestClearings)
+            {
+                if (node != null)
+                    node.OnNodeSelected += HandleClearingSelected;
+            }
+        }
+
+        private void OnDisable()
+        {
+            foreach (var node in forestClearings)
+            {
+                if (node != null)
+                    node.OnNodeSelected -= HandleClearingSelected;
+            }
+        }
+
         private void Start()
         {
             InitializeForestMap();
@@ -44,16 +62,12 @@ namespace QLDMathApp.Modules.Hub
             var userData = Architecture.Services.PersistenceService.Instance.Load<Architecture.Services.AppUserData>();
             int unlockedClearing = 1; // Default to first clearing
             
-            // Note: Hub state should be stored in AppUserData in a real implementation
-            // For now, we'll simulate it for the pivot verification
-            
             for (int i = 0; i < forestClearings.Count; i++)
             {
                 bool isUnlocked = i < unlockedClearing;
                 bool isCurrent = i == unlockedClearing - 1;
                 
                 forestClearings[i].Initialize(i + 1, isUnlocked, isCurrent);
-                forestClearings[i].OnNodeSelected += HandleClearingSelected;
             }
             
             if (unlockedClearing > 0 && unlockedClearing <= forestClearings.Count)
@@ -118,14 +132,6 @@ namespace QLDMathApp.Modules.Hub
         {
             // Logic to update persistence and animate unlock
             Debug.Log("[ForestMap] A new part of the forest is waking up!");
-        }
-
-        private void OnDestroy()
-        {
-            foreach (var node in forestClearings)
-            {
-                node.OnNodeSelected -= HandleClearingSelected;
-            }
         }
     }
 }
