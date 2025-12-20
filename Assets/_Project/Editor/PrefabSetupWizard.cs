@@ -37,7 +37,7 @@ namespace QLDMathApp.Editor
             sr.color = new Color(1f, 0.95f, 0.4f); // Yellow glow
             
             // Add animator component
-            firefly.AddComponent<QLDMathApp.Modules.Subitising.FireflyAnimator>();
+            firefly.AddComponent<QLDMathApp.Modules.Subitising.AngelAnimator>();
             
             // Save as prefab
             string path = PREFAB_PATH + "Firefly.prefab";

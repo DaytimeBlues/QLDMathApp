@@ -4,11 +4,11 @@ using System.Collections;
 namespace QLDMathApp.Modules.Subitising
 {
     /// <summary>
-    /// Animates individual firefly: floating, pulsing, fade in/out.
-    /// Uses simple sine-based animation for performance on low-end devices.
+    /// ANGEL ANIMATOR: Animates individual Angel silhouettes: floating, pulsing, fade in/out.
+    /// Digital interference look.
     /// </summary>
     [RequireComponent(typeof(SpriteRenderer))]
-    public class FireflyAnimator : MonoBehaviour
+    public class AngelAnimator : MonoBehaviour // Renamed from FireflyAnimator
     {
         [Header("Float Animation")]
         [SerializeField] private float floatAmplitude = 0.1f;
@@ -87,7 +87,7 @@ namespace QLDMathApp.Modules.Subitising
         }
 
         /// <summary>
-        /// EXPLANATORY FEEDBACK: Pulse when counted during explanation.
+        /// NERV ANALYSIS: Pulse when identified during explanation.
         /// </summary>
         public void Pulse()
         {

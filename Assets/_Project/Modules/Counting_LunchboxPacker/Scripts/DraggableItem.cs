@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using System;
+using QLDMathApp.Architecture.UI;
 
 namespace QLDMathApp.Modules.Counting
 {
@@ -105,7 +107,7 @@ namespace QLDMathApp.Modules.Counting
             bool connectedToPlug = false;
             foreach (var result in results)
             {
-                if (result.gameObject.GetComponent<LunchboxSlot>() != null)
+                if (result.gameObject.GetComponent<EntryPlugSlot>() != null)
                 {
                     connectedToPlug = true;
                     break;

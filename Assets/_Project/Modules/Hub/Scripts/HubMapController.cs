@@ -1,7 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 using QLDMathApp.Architecture.Events;
+using QLDMathApp.Architecture.UI;
 
 namespace QLDMathApp.Modules.Hub
 {
@@ -16,8 +18,8 @@ namespace QLDMathApp.Modules.Hub
         [SerializeField] private NERVTheme theme;
 
         [Header("Tactical Display References")]
-        [SerializeField] private Transform evaUnitTransform; // Renamed from avatarTransform
-        [SerializeField] private List<MapNode> tacticalSectors; // Renamed from mapNodes
+        [SerializeField, FormerlySerializedAs("avatarTransform")] private Transform evaUnitTransform; 
+        [SerializeField, FormerlySerializedAs("mapNodes")] private List<MapNode> tacticalSectors; 
         [SerializeField] private AudioSource audioSource;
         
         [Header("Eva Unit Animation")]

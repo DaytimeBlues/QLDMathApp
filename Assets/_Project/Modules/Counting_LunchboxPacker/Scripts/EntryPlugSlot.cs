@@ -2,23 +2,25 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
+using UnityEngine.Serialization;
+
 namespace QLDMathApp.Modules.Counting
 {
     /// <summary>
-    /// The lunchbox target area with dynamic slots.
-    /// Slots appear based on target count, providing visual scaffold.
+    /// ENTRY PLUG SLOTS: Dynamic module slots for pilot interface.
+    /// Slots provide visual stabilization for supply missions.
     /// </summary>
-    public class LunchboxSlot : MonoBehaviour
+    public class EntryPlugSlot : MonoBehaviour // Renamed from LunchboxSlot
     {
-        [Header("References")]
+        [Header("Tactical References")]
         [SerializeField] private Transform slotsContainer;
-        [SerializeField] private GameObject slotPrefab; // Dashed outline slot
-        [SerializeField] private Image lunchboxImage;
-        [SerializeField] private ParticleSystem acceptParticles;
+        [SerializeField, FormerlySerializedAs("slotPrefab")] private GameObject signalSlotPrefab; 
+        [SerializeField, FormerlySerializedAs("lunchboxImage")] private Image plugInterfaceImage;
+        [SerializeField, FormerlySerializedAs("acceptParticles")] private ParticleSystem initializationParticles;
         
-        [Header("Styling")]
+        [Header("NERV Interface Styling")]
         [SerializeField] private Color normalColor = Color.white;
-        [SerializeField] private Color highlightColor = new Color(1f, 1f, 0.7f);
+        [SerializeField, FormerlySerializedAs("highlightColor")] private Color activeHighlightColor = new Color(1f, 1f, 0.7f);
         
         private List<Transform> _slots = new List<Transform>();
         private List<DraggableItem> _packedItems = new List<DraggableItem>();
@@ -28,7 +30,7 @@ namespace QLDMathApp.Modules.Counting
             // Clear existing
             foreach (var slot in _slots)
             {
-                Destroy(slot.gameObject);
+                if (slot != null) Destroy(slot.gameObject);
             }
             _slots.Clear();
             _packedItems.Clear();
@@ -36,7 +38,7 @@ namespace QLDMathApp.Modules.Counting
             // Create new slots (visual scaffold showing how many to pack)
             for (int i = 0; i < count; i++)
             {
-                GameObject slot = Instantiate(slotPrefab, slotsContainer);
+                GameObject slot = Instantiate(signalSlotPrefab, slotsContainer);
                 _slots.Add(slot.transform);
                 
                 // Position slots in a row
@@ -55,14 +57,14 @@ namespace QLDMathApp.Modules.Counting
                 item.GetComponent<RectTransform>().anchoredPosition = 
                     _slots[slotIndex].GetComponent<RectTransform>().anchoredPosition;
                 
-                // Hide the dashed outline
+                // Hide the standby outline
                 _slots[slotIndex].GetComponent<Image>().enabled = false;
                 
-                // Particles
-                if (acceptParticles != null)
+                // Initialization Feedback
+                if (initializationParticles != null)
                 {
-                    acceptParticles.transform.position = _slots[slotIndex].position;
-                    acceptParticles.Play();
+                    initializationParticles.transform.position = _slots[slotIndex].position;
+                    initializationParticles.Play();
                 }
                 
                 _packedItems.Add(item);
@@ -83,9 +85,9 @@ namespace QLDMathApp.Modules.Counting
 
         public void Highlight(bool on)
         {
-            if (lunchboxImage != null)
+            if (plugInterfaceImage != null)
             {
-                lunchboxImage.color = on ? highlightColor : normalColor;
+                plugInterfaceImage.color = on ? activeHighlightColor : normalColor;
             }
         }
     }

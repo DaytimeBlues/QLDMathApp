@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
+using QLDMathApp.Architecture.UI;
 using QLDMathApp.Architecture.Data;
 using QLDMathApp.Architecture.Events;
 
@@ -12,23 +14,23 @@ namespace QLDMathApp.Modules.Patterns
     /// "Complete the synchronization waveform!"
     /// Child copies and continues patterns to stabilize pilot sync.
     /// </summary>
-    public class PatternBuilderController : MonoBehaviour
+    public class SyncSequenceController : MonoBehaviour // Renamed from PatternBuilderController
     {
         [Header("NERV Theme")]
         [SerializeField] private NERVTheme theme;
 
         [Header("Sync References")]
-        [SerializeField] private Transform sequenceArea; // Renamed from patternDisplayArea
-        [SerializeField] private Transform waveformOptions; // Renamed from choiceArea
+        [SerializeField, FormerlySerializedAs("patternDisplayArea")] private Transform sequenceArea; 
+        [SerializeField, FormerlySerializedAs("choiceArea")] private Transform waveformOptions; 
         [SerializeField] private AudioSource audioSource;
-        [SerializeField] private Animator technicianAnimator; // Renamed from characterAnimator (Nerv Technician)
+        [SerializeField, FormerlySerializedAs("characterAnimator")] private Animator technicianAnimator; 
 
         [Header("Prefabs")]
-        [SerializeField] private PatternPiece waveformPrefab; // Renamed from piecePrefab
+        [SerializeField, FormerlySerializedAs("piecePrefab")] private PatternPiece waveformPrefab; 
 
         [Header("Waveform Assets")]
-        [SerializeField] private Sprite[] syncSignals; // Renamed from shapeSprites (Circle -> Pulse, Square -> Block, etc.)
-        [SerializeField] private Color[] signalColors; // Renamed from patternColors
+        [SerializeField, FormerlySerializedAs("shapeSprites")] private Sprite[] syncSignals; 
+        [SerializeField, FormerlySerializedAs("patternColors")] private Color[] signalColors; 
 
         private List<PatternPiece> _displayedWaveform = new List<PatternPiece>();
         private List<PatternPiece> _choiceWaveforms = new List<PatternPiece>();

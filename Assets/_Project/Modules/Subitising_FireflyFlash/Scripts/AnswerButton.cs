@@ -1,7 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using System;
+using QLDMathApp.Architecture.UI;
 
 namespace QLDMathApp.Modules.Subitising
 {
@@ -20,7 +22,7 @@ namespace QLDMathApp.Modules.Subitising
         [Header("UI")]
         [SerializeField] private Text numberText;
         [SerializeField] private Image buttonImage;
-        [SerializeField] private Image outlineImage; // Renamed from shadowImage
+        [SerializeField, FormerlySerializedAs("shadowImage")] private Image outlineImage; 
         
         [Header("High-Tech Settings")]
         [SerializeField] private float pressOffset = 2f; 

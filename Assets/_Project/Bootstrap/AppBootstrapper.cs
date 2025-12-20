@@ -4,7 +4,7 @@ using System.Collections;
 using QLDMathApp.Architecture.Audio;
 using QLDMathApp.Architecture.Data;
 
-namespace QLDMathApp.Architecture.Bootstrapper
+namespace QLDMathApp.Bootstrap
 {
     public class AppBootstrapper : MonoBehaviour
     {
@@ -29,6 +29,21 @@ namespace QLDMathApp.Architecture.Bootstrapper
                 var audioObj = new GameObject("AudioQueueService");
                 DontDestroyOnLoad(audioObj); // Critical if you LoadScene(Single).
                 audioObj.AddComponent<AudioQueueService>();
+            }
+
+            // NERV Adaptive Systems
+            if (Object.FindFirstObjectByType<QLDMathApp.Architecture.Managers.SyncRatioManager>() == null)
+            {
+                var syncManagerObj = new GameObject("NERV_SyncRatioManager");
+                DontDestroyOnLoad(syncManagerObj);
+                syncManagerObj.AddComponent<QLDMathApp.Architecture.Managers.SyncRatioManager>();
+            }
+
+            if (Object.FindFirstObjectByType<QLDMathApp.Modules.Magi.MagiSystem>() == null)
+            {
+                var magiObj = new GameObject("MAGI_System");
+                DontDestroyOnLoad(magiObj);
+                magiObj.AddComponent<QLDMathApp.Modules.Magi.MagiSystem>();
             }
 
             // Data warmup (optional)

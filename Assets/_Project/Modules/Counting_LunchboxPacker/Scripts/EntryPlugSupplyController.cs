@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
+using QLDMathApp.Architecture.UI;
 using QLDMathApp.Architecture.Data;
 using QLDMathApp.Architecture.Events;
 
@@ -12,23 +14,23 @@ namespace QLDMathApp.Modules.Counting
     /// "Supply 3 modules for the Entry Plug!"
     /// Child drags items to Entry Plug, practicing one-to-one correspondence.
     /// </summary>
-    public class LunchboxPackerController : MonoBehaviour
+    public class EntryPlugSupplyController : MonoBehaviour // Renamed from LunchboxPackerController
     {
         [Header("NERV Theme")]
         [SerializeField] private NERVTheme theme;
 
         [Header("Supply References")]
-        [SerializeField] private Transform supplySpawnArea; // Renamed from itemSpawnArea
-        [SerializeField] private LunchboxSlot entryPlug; // Renamed from lunchbox
+        [SerializeField, FormerlySerializedAs("itemSpawnArea")] private Transform supplySpawnArea; 
+        [SerializeField, FormerlySerializedAs("lunchbox")] private EntryPlugSlot entryPlug; 
         [SerializeField] private AudioSource audioSource;
-        [SerializeField] private Image operatorImage; // Renamed from characterImage (Nerv Operator)
-        [SerializeField] private Animator operatorAnimator;
+        [SerializeField, FormerlySerializedAs("characterImage")] private Image operatorImage; 
+        [SerializeField, FormerlySerializedAs("characterAnimator")] private Animator operatorAnimator;
         
         [Header("Prefabs")]
-        [SerializeField] private DraggableItem[] supplyPrefabs; // Power modules, battery, LCL, etc.
+        [SerializeField, FormerlySerializedAs("foodPrefabs")] private DraggableItem[] supplyPrefabs; 
         
         [Header("Mission Settings")]
-        [SerializeField] private int maxSuppliesAvailable = 8;
+        [SerializeField, FormerlySerializedAs("maxItemsToSpawn")] private int maxSuppliesAvailable = 8;
         
         private MathProblemSO _currentProblem;
         private int _targetCount;

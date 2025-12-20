@@ -9,7 +9,7 @@ namespace QLDMathApp.Modules.Subitising
     /// - Standard dice patterns (Level 1 - aids subitising)
     /// - Random positions (Level 2 - tests true subitising)
     /// </summary>
-    public class FireflySpawner : MonoBehaviour
+    public class AngelSpawner : MonoBehaviour // Renamed from FireflySpawner
     {
         [Header("NERV Mission References")]
         [SerializeField] private GameObject fireflyPrefab;
@@ -20,7 +20,7 @@ namespace QLDMathApp.Modules.Subitising
         [SerializeField] private bool useDicePatterns = true;
         [SerializeField] private float spawnRadius = 1.5f;
         
-        private List<GameObject> _spawnedFireflies = new List<GameObject>();
+        private List<AngelAnimator> _spawnedAngels = new List<AngelAnimator>();
         
         // Standard dice patterns (normalized -1 to 1 coordinates)
         private static readonly Vector2[][] DicePatterns = new Vector2[][]
@@ -47,7 +47,7 @@ namespace QLDMathApp.Modules.Subitising
                            new Vector2(-0.5f, -0.6f), new Vector2(0.5f, -0.6f) },
         };
 
-        public int CurrentCount => _spawnedFireflies.Count;
+        public int CurrentCount => _spawnedAngels.Count;
 
         public void SpawnFireflies(int count)
         {
@@ -58,16 +58,15 @@ namespace QLDMathApp.Modules.Subitising
             for (int i = 0; i < count; i++)
             {
                 Vector3 pos = jarContainer.position + (Vector3)(positions[i] * spawnRadius);
-                GameObject firefly = Instantiate(fireflyPrefab, pos, Quaternion.identity, jarContainer);
+                GameObject angelObj = Instantiate(fireflyPrefab, pos, Quaternion.identity, jarContainer);
                 
                 // Add gentle float animation
-                var animator = firefly.GetComponent<FireflyAnimator>();
+                var animator = angelObj.GetComponent<AngelAnimator>();
                 if (animator != null)
                 {
                     animator.StartFloating(Random.Range(0f, 1f)); // Random phase offset
+                    _spawnedAngels.Add(animator);
                 }
-                
-                _spawnedFireflies.Add(firefly);
             }
         }
 
@@ -89,29 +88,27 @@ namespace QLDMathApp.Modules.Subitising
 
         public void HideFireflies()
         {
-            foreach (var firefly in _spawnedFireflies)
+            foreach (var angel in _spawnedAngels)
             {
                 // Fade out with glow effect
-                var animator = firefly.GetComponent<FireflyAnimator>();
-                if (animator != null)
+                if (angel != null)
                 {
-                    animator.FadeOut(0.2f);
+                    angel.FadeOut(0.2f);
                 }
                 else
                 {
-                    firefly.SetActive(false);
+                    angel.gameObject.SetActive(false);
                 }
             }
         }
 
         public void ShowFireflies()
         {
-            foreach (var firefly in _spawnedFireflies)
+            foreach (var animator in _spawnedAngels)
             {
-                firefly.SetActive(true);
-                var animator = firefly.GetComponent<FireflyAnimator>();
                 if (animator != null)
                 {
+                    animator.gameObject.SetActive(true);
                     animator.FadeIn(0.2f);
                     animator.StopFloating(); // Freeze for counting
                 }
@@ -128,14 +125,14 @@ namespace QLDMathApp.Modules.Subitising
             
             Transform finger = Instantiate(countingFingerPrefab, jarContainer);
             
-            for (int i = 0; i < _spawnedFireflies.Count; i++)
+            for (int i = 0; i < _spawnedAngels.Count; i++)
             {
-                GameObject firefly = _spawnedFireflies[i];
+                AngelAnimator angel = _spawnedAngels[i];
                 
                 // Move finger to firefly
                 float moveTime = 0.3f;
                 Vector3 startPos = finger.position;
-                Vector3 endPos = firefly.transform.position;
+                Vector3 endPos = angel.transform.position;
                 
                 for (float t = 0; t < moveTime; t += Time.deltaTime)
                 {
@@ -144,10 +141,9 @@ namespace QLDMathApp.Modules.Subitising
                 }
                 
                 // Highlight firefly (pulse effect)
-                var animator = firefly.GetComponent<FireflyAnimator>();
-                if (animator != null)
+                if (angel != null)
                 {
-                    animator.Pulse();
+                    angel.Pulse();
                 }
                 
                 // Say the number (would trigger NumberAudioService)
@@ -161,11 +157,11 @@ namespace QLDMathApp.Modules.Subitising
 
         private void ClearFireflies()
         {
-            foreach (var firefly in _spawnedFireflies)
+            foreach (var angel in _spawnedAngels)
             {
-                if (firefly != null) Destroy(firefly);
+                if (angel != null) Destroy(angel.gameObject);
             }
-            _spawnedFireflies.Clear();
+            _spawnedAngels.Clear();
         }
     }
 }

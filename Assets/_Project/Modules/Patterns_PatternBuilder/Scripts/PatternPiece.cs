@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System;
+using QLDMathApp.Architecture.UI;
 
 namespace QLDMathApp.Modules.Patterns
 {

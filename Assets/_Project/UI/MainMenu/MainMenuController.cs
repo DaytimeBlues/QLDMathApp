@@ -17,10 +17,10 @@ namespace QLDMathApp.UI.MainMenu
 
         private void PlayGame()
         {
-            // Load Firefly Flash scene
-            // 'Single' mode to clear Main Menu memory
-            Debug.Log("[MainMenu] Loading Firefly Flash...");
-            SceneManager.LoadScene("FireflyFlash", LoadSceneMode.Single);
+            // Load Angel Intercept scene
+            // 'Single' mode to clear Tactical Display memory
+            Debug.Log("[NERV] PATTERN BLUE: Initiating Angel Intercept...");
+            SceneManager.LoadScene("AngelIntercept", LoadSceneMode.Single);
         }
 
         private void OpenSettings()

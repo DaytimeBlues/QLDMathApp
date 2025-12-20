@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Linq;
+using UnityEngine.Serialization;
+using QLDMathApp.Architecture.UI;
 using QLDMathApp.Architecture.Data;
 using QLDMathApp.Architecture.Events;
 using QLDMathApp.Architecture.Managers;
@@ -9,22 +11,20 @@ using QLDMathApp.Architecture.Managers;
 namespace QLDMathApp.Modules.Subitising
 {
     /// <summary>
-    /// ANGEL INTERCEPT: Core subitising game controller (re-themed).
-    /// Implements:
-    /// - Timed stimulus display (Angel silhouettes)
-    /// - Sync Ratio adaptation (based on response time/correctness)
-    /// - Explanatory feedback via MAGI analysis
+    /// ANGEL INTERCEPT CONTROLLER: Core logic for NERV subitising missions.
+    /// Manages Angel visualizations, MAGI analysis, and pilot sync.
     /// </summary>
-    public class FireflyFlashController : MonoBehaviour
+    public class AngelInterceptController : MonoBehaviour
     {
-        [Header("NERV Theme")]
+        [Header("NERV Mission Configuration")]
         [SerializeField] private NERVTheme theme;
         
         [Header("References")]
-        [SerializeField] private FireflySpawner angelSpawner;
-        [SerializeField] private AnswerButtonGroup answerButtons;
+        [SerializeField, FormerlySerializedAs("spawner")] private AngelSpawner angelSpawner;
+        [SerializeField, FormerlySerializedAs("answerButtonGroup")] private AnswerButtonGroup terminalGroup;
         [SerializeField] private AudioSource audioSource;
-        [SerializeField] private CanvasGroup interceptionFieldGroup; 
+        [SerializeField, FormerlySerializedAs("jarCanvas")] private CanvasGroup interceptionFieldGroup; 
+        [SerializeField, FormerlySerializedAs("readinessCanvas")] private CanvasGroup missionReadyCanvas; // New field added
         
         [Header("Timing (Sync Adaptation)")]
         [SerializeField] private float baseScanTime = 1.2f;
@@ -46,11 +46,15 @@ namespace QLDMathApp.Modules.Subitising
         private void OnEnable()
         {
             EventBus.OnInterventionTriggered += HandleIntervention;
+            EventBus.OnSyncRateChanged += HandleSyncRateChanged;
+            EventBus.OnProblemStarted += HandleProblemStarted;
         }
 
         private void OnDisable()
         {
             EventBus.OnInterventionTriggered -= HandleIntervention;
+            EventBus.OnSyncRateChanged -= HandleSyncRateChanged;
+            EventBus.OnProblemStarted -= HandleProblemStarted;
         }
 
         /// <summary>
@@ -87,11 +91,11 @@ namespace QLDMathApp.Modules.Subitising
             _roundStartTime = Time.time;
             _isWaitingForAnswer = true;
             
-            answerButtons.SetupButtons(
+            terminalGroup.SetupButtons(
                 _currentProblem.correctValue,
                 _currentProblem.distractorValues.ToArray()
             );
-            answerButtons.EnableButtons(true);
+            terminalGroup.EnableButtons(true);
         }
 
         public void OnAnswerSelected(int selectedValue)
@@ -102,7 +106,7 @@ namespace QLDMathApp.Modules.Subitising
             float responseTime = (Time.time - _roundStartTime) * 1000f;
             bool isCorrect = (selectedValue == _currentProblem.correctValue);
             
-            answerButtons.EnableButtons(false);
+            terminalGroup.EnableButtons(false);
             
             EventBus.OnAnswerAttempted?.Invoke(isCorrect, responseTime);
             
@@ -118,25 +122,13 @@ namespace QLDMathApp.Modules.Subitising
 
         private IEnumerator SuccessSequence()
         {
-            // SYNC RATIO INCREASE
-            _currentSyncRatio = Mathf.Min(100f, _currentSyncRatio + 15.0f);
-            EventBus.OnSyncRateChanged?.Invoke(_currentSyncRatio / 100f);
-            
             EventBus.OnPlaySuccessFeedback?.Invoke();
-            
-            // Adaptive: Speed up scan
-            _currentScanTime = Mathf.Max(minScanTime, _currentScanTime - 0.1f);
-            
             yield return new WaitForSeconds(1.5f);
             Debug.Log("[AngelIntercept] Target Neutralized.");
         }
 
         private IEnumerator FailureSequence()
         {
-            // SYNC RATIO DROP
-            _currentSyncRatio = Mathf.Max(0f, _currentSyncRatio - 20.0f);
-            EventBus.OnSyncRateChanged?.Invoke(_currentSyncRatio / 100f);
-
             EventBus.OnPlayCorrectionFeedback?.Invoke();
             
             // MAGI ANALYSIS (Re-show frozen)
@@ -150,26 +142,36 @@ namespace QLDMathApp.Modules.Subitising
             
             yield return angelSpawner.AnimateCountingSequence();
             
-            // Adaptive: Slow down scan
-            _currentScanTime = Mathf.Min(maxScanTime, _currentScanTime + 0.2f);
-            
             yield return new WaitForSeconds(1.0f);
             Debug.Log("[AngelIntercept] MAGI Analysis complete. Scaffolding deployed.");
         }
 
+        private void HandleSyncRateChanged(float rate)
+        {
+            _currentSyncRatio = rate * 100f;
+            // Linear scaling: higher sync = shorter scan time
+            _currentScanTime = Mathf.Lerp(maxScanTime, minScanTime, rate);
+        }
+
+        private void HandleProblemStarted(string questionId)
+        {
+            // Bridge: When Game Manager starts a problem, we start our round logic
+            // We assume GameManager.Instance.CurrentProblem is set, or we could fetch via ID
+            var problem = GameManager.Instance != null ? GameManager.Instance.CurrentProblem : null;
+            if (problem != null && problem.questionId == questionId)
+            {
+                StartRound(problem);
+            }
+            else
+            {
+                Debug.LogWarning($"[AngelIntercept] Problem mismatch or GM missing. ID: {questionId}");
+            }
+        }
+
         private void HandleIntervention(InterventionType type)
         {
-            switch (type)
-            {
-                case InterventionType.LevelUp:
-                    _currentScanTime = Mathf.Max(minScanTime, _currentScanTime - 0.3f);
-                    break;
-                    
-                case InterventionType.ScaffoldDown:
-                case InterventionType.ShowDemo:
-                    _currentScanTime = maxScanTime;
-                    break;
-            }
+            // Optional: Add unique state changes for LevelUp/ScaffoldDown
+            Debug.Log($"[NERV] Intervention Received: {type}");
         }
     }
 }

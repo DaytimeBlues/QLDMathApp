@@ -1,6 +1,5 @@
-# Firefly Flash Module - Scene Setup Guide
-
-This document explains how to set up the Firefly Flash subitising game in Unity.
+# NERV Mission: Angel Intercept (Subitising)
+This module involves scanning the interception field for Angel patterns.
 
 ## Scene Hierarchy
 
@@ -81,10 +80,9 @@ Firefly (SpriteRenderer)
    - `questionAudio`: "How many fireflies can you see?"
    - `explanationAudio`: "Let me help you count. One... two... three!"
 
-## Wiring Up References
-
-1. **FireflyFlashController**:
-   - Drag `FireflySpawner` from JarContainer
+## Wiring1. Open the `AngelIntercept` scene.
+2. Ensure the `AngelInterceptController` has a `NERVTheme` assigned.
+3. The `AngelSpawner` should reference the Angel prefab.
    - Drag `AnswerButtonGroup` 
    - Drag `AudioSource`
    - Drag `JarContainer`'s CanvasGroup

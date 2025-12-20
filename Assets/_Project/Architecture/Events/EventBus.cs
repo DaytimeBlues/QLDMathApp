@@ -27,10 +27,22 @@ namespace QLDMathApp.Architecture.Events
         public static Action OnPlayCorrectionFeedback;
         #endregion
 
-        #region Evangelion Thermal Events
-        // Param: Sync Rate (0.0 to 1.0)
-        public static Action<float> OnSyncRateChanged;
+        #region Enchanted Forest Events
+        // Param: Bloom Rate (0.0 to 1.0)
+        public static Action<float> OnGardenBloomChanged;
         #endregion
+
+        #region Forest Helper Events
+        // Param: Helper (Owl, Bunny, Cat), Message
+        public static Action<ForestHelper, string> OnHelperConsulted;
+        #endregion
+    }
+
+    public enum ForestHelper
+    {
+        Owl,   // Wise/Rational
+        Bunny, // Kind/Nurturing
+        Cat    // Clever/Intuitive
     }
 
     public enum GameState

@@ -1,16 +1,13 @@
 {
-    "name": "QLDMathApp.Editor",
-    "rootNamespace": "QLDMathApp.Editor",
+    "name": "QLDMathApp.Bootstrap",
+    "rootNamespace": "QLDMathApp.Bootstrap",
     "references": [
         "QLDMathApp.Architecture",
-        "QLDMathApp.Bootstrap",
         "QLDMathApp.Modules",
-        "QLDMathApp.Testing",
+        "Unity.TextMeshPro",
         "QLDMathApp.UI"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
