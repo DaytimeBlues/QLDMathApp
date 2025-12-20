@@ -169,30 +169,4 @@ namespace QLDMathApp.Modules.Patterns
             }
         }
     }
-
-        private void HandleClick()
-        {
-            if (_isChoice)
-            {
-                OnSelected?.Invoke(this);
-            }
-        }
-
-        // Neo-Skeuomorphic press effect
-        public void OnPointerDown(PointerEventData eventData)
-        {
-            if (_isChoice && _button.interactable)
-            {
-                transform.localScale = _originalScale * 0.95f;
-            }
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            if (_isChoice)
-            {
-                transform.localScale = _originalScale;
-            }
-        }
-    }
 }
