@@ -18,7 +18,7 @@ namespace QLDMathApp.Modules.Subitising
     public class FireflyGameLoop : MonoBehaviour
     {
         [Header("Forest Theme")]
-        [SerializeField] private ForestTheme theme; // TODO: Replace with ForestTheme
+        [SerializeField] private QLDMathApp.Architecture.UI.ForestTheme theme;
 
         [Header("Game References")]
         [SerializeField] private FireflySpawner fireflySpawner;

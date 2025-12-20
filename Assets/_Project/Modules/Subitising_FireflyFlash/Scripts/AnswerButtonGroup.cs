@@ -16,11 +16,11 @@ namespace QLDMathApp.Modules.Subitising
         [Header("Settings")]
         [SerializeField] private bool shufflePositions = true;
         
-        private FireflyInterceptController _controller;
+        private FireflyGameLoop _controller;
 
         private void Awake()
         {
-            _controller = GetComponentInParent<FireflyInterceptController>();
+            _controller = GetComponentInParent<FireflyGameLoop>();
         }
 
         /// <summary>
