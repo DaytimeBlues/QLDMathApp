@@ -126,10 +126,10 @@ namespace QLDMathApp.Modules.Counting
             
             // ACTIVITY SUCCESS
             EventBus.OnAnswerAttempted?.Invoke(true, responseTime);
-            EventBus.OnPlaySuccessFeedback?.Invoke();
+            EventBus.OnGuideSpoke?.Invoke(GuidePersonality.KindBunny, "What a lovely picnic basket! You've packed it perfectly.");
             
-            // GENERIC MASTERY FEEDBACK (Audit Fix: resolves OnSyncRateChanged compilation error)
-            EventBus.OnMasteryLevelChanged?.Invoke(0.85f); 
+            // Magic garden growth update (Audit Fix: Replaces OnMasteryLevelChanged)
+            EventBus.OnGrowthProgressChanged?.Invoke(0.85f); 
 
             if (guideAnimator != null)
             {

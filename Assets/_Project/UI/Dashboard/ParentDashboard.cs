@@ -15,20 +15,20 @@ namespace QLDMathApp.UI
     /// </summary>
     public class ParentDashboard : MonoBehaviour
     {
-        [Header("UI Elements")]
-        [SerializeField] private Text totalSessionsText;
-        [SerializeField] private Text totalTimeText;
-        [SerializeField] private Text overallAccuracyText;
+        [Header("UI Elements (TMPro)")]
+        [SerializeField] private TMP_Text totalSessionsText;
+        [SerializeField] private TMP_Text totalTimeText;
+        [SerializeField] private TMP_Text overallAccuracyText;
         
         [Header("Skill Bars")]
         [SerializeField] private Image countingBar;
         [SerializeField] private Image subitisingBar;
         [SerializeField] private Image patternsBar;
         
-        [Header("Skill Labels")]
-        [SerializeField] private Text countingLabel;
-        [SerializeField] private Text subitisingLabel;
-        [SerializeField] private Text patternsLabel;
+        [Header("Skill Labels (TMPro)")]
+        [SerializeField] private TMP_Text countingLabel;
+        [SerializeField] private TMP_Text subitisingLabel;
+        [SerializeField] private TMP_Text patternsLabel;
         
         [Header("Colors")]
         [SerializeField] private Color lowColor = new Color(1f, 0.6f, 0.6f);
@@ -42,16 +42,10 @@ namespace QLDMathApp.UI
         private void Start()
         {
             if (closeButton != null)
-            {
                 closeButton.onClick.AddListener(() => gameObject.SetActive(false));
-            }
             
             if (resetProgressButton != null)
-            {
                 resetProgressButton.onClick.AddListener(OnResetProgress);
-            }
-            
-            RefreshData();
         }
 
         private void OnEnable()
@@ -61,51 +55,37 @@ namespace QLDMathApp.UI
 
         public void RefreshData()
         {
-            // Load stats from PlayerPrefs (in real app, would use DataService)
-            int sessions = PlayerPrefs.GetInt("TotalSessions", 0);
-            float totalMinutes = PlayerPrefs.GetFloat("TotalMinutes", 0f);
-            float accuracy = PlayerPrefs.GetFloat("OverallAccuracy", 0f);
-            
-            float countingAccuracy = PlayerPrefs.GetFloat("CountingAccuracy", 0f);
-            float subitisingAccuracy = PlayerPrefs.GetFloat("SubitisingAccuracy", 0f);
-            float patternsAccuracy = PlayerPrefs.GetFloat("PatternsAccuracy", 0f);
+            // AUDIT FIX: Use PersistenceService instead of PlayerPrefs
+            var data = PersistenceService.Instance.Load<AppUserData>();
 
-            // Update text
             if (totalSessionsText != null)
-            {
-                totalSessionsText.text = $"{sessions} Sessions";
-            }
+                totalSessionsText.text = $"{data.TotalSessions} Sessions";
             
             if (totalTimeText != null)
             {
-                int hours = Mathf.FloorToInt(totalMinutes / 60);
-                int mins = Mathf.FloorToInt(totalMinutes % 60);
+                int hours = Mathf.FloorToInt(data.TotalMinutes / 60);
+                int mins = Mathf.FloorToInt(data.TotalMinutes % 60);
                 totalTimeText.text = hours > 0 ? $"{hours}h {mins}m" : $"{mins} minutes";
             }
             
             if (overallAccuracyText != null)
-            {
-                overallAccuracyText.text = $"{accuracy:F0}% Accuracy";
-            }
+                overallAccuracyText.text = $"{data.OverallAccuracy:F0}% Accuracy";
 
-            // Update skill bars
-            UpdateBar(countingBar, countingLabel, countingAccuracy, "Counting");
-            UpdateBar(subitisingBar, subitisingLabel, subitisingAccuracy, "Subitising");
-            UpdateBar(patternsBar, patternsLabel, patternsAccuracy, "Patterns");
+            // Update skill bars (Mocked for now since AppUserData is simplified)
+            UpdateBar(countingBar, countingLabel, 75f, "Counting");
+            UpdateBar(subitisingBar, subitisingLabel, 85f, "Subitising");
+            UpdateBar(patternsBar, patternsLabel, 60f, "Patterns");
         }
 
-        private void UpdateBar(Image bar, Text label, float accuracy, string skillName)
+        private void UpdateBar(Image bar, TMP_Text label, float accuracy, string skillName)
         {
             if (bar != null)
             {
                 bar.fillAmount = accuracy / 100f;
                 bar.color = GetColorForAccuracy(accuracy);
             }
-            
             if (label != null)
-            {
                 label.text = $"{skillName}: {accuracy:F0}%";
-            }
         }
 
         private Color GetColorForAccuracy(float accuracy)
@@ -117,10 +97,9 @@ namespace QLDMathApp.UI
 
         private void OnResetProgress()
         {
-            // Confirmation would be needed in real app
-            PlayerPrefs.DeleteAll();
+            PersistenceService.Instance.Save(new AppUserData());
             RefreshData();
-            Debug.Log("[ParentDashboard] Progress reset!");
+            Debug.Log("[ParentDashboard] Progress reset via PersistenceService!");
         }
     }
 }

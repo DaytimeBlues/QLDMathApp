@@ -6,6 +6,7 @@ using QLDMathApp.Architecture.Data;
 
 namespace QLDMathApp.Bootstrap
 {
+    [DefaultExecutionOrder(-100)]
     public class AppBootstrapper : MonoBehaviour
     {
         private static bool _booted;

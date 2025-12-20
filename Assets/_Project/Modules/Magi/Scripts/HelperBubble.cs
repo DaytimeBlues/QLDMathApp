@@ -31,25 +31,25 @@ namespace QLDMathApp.Modules.Magi
 
         private void OnEnable()
         {
-            EventBus.OnAgentFeedbackRequested += HandleAgentFeedback;
+            EventBus.OnGuideSpoke += HandleGuideSpoke;
         }
 
         private void OnDisable()
         {
-            EventBus.OnAgentFeedbackRequested -= HandleAgentFeedback;
+            EventBus.OnGuideSpoke -= HandleGuideSpoke;
         }
 
-        private void HandleAgentFeedback(PedagogicalAgent agent, string message)
+        private void HandleGuideSpoke(GuidePersonality personality, string message)
         {
             if (agentNameLabel == null || messageText == null) return;
 
             // Set Agent Name and Color
-            agentNameLabel.text = agent.ToString().ToUpper();
-            switch (agent)
+            agentNameLabel.text = personality.ToString().ToUpper();
+            switch (personality)
             {
-                case PedagogicalAgent.Rational: agentNameLabel.color = colorOwl; break;
-                case PedagogicalAgent.Nurturing: agentNameLabel.color = colorBunny; break;
-                case PedagogicalAgent.Intuitive: agentNameLabel.color = colorCat; break;
+                case GuidePersonality.WiseOwl: agentNameLabel.color = colorOwl; break;
+                case GuidePersonality.KindBunny: agentNameLabel.color = colorBunny; break;
+                case GuidePersonality.CuriousCat: agentNameLabel.color = colorCat; break;
             }
 
             // Simple Fade In/Out with Efficient Typing

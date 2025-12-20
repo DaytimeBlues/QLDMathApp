@@ -21,8 +21,8 @@ namespace QLDMathApp.Testing
             EventBus.OnGameStateChanged += LogGameState;
             EventBus.OnAnswerAttempted += LogAnswer;
             EventBus.OnInterventionTriggered += LogIntervention;
-            EventBus.OnPlaySuccessFeedback += LogSuccessFeedback;
-            EventBus.OnPlayCorrectionFeedback += LogCorrectionFeedback;
+            EventBus.OnGrowthProgressChanged += LogGrowthProgress;
+            EventBus.OnGuideSpoke += LogGuideSpoke;
         }
 
         private void OnDisable()
@@ -30,8 +30,8 @@ namespace QLDMathApp.Testing
             EventBus.OnGameStateChanged -= LogGameState;
             EventBus.OnAnswerAttempted -= LogAnswer;
             EventBus.OnInterventionTriggered -= LogIntervention;
-            EventBus.OnPlaySuccessFeedback -= LogSuccessFeedback;
-            EventBus.OnPlayCorrectionFeedback -= LogCorrectionFeedback;
+            EventBus.OnGrowthProgressChanged -= LogGrowthProgress;
+            EventBus.OnGuideSpoke -= LogGuideSpoke;
         }
 
         private void LogGameState(GameState state)
@@ -59,16 +59,16 @@ namespace QLDMathApp.Testing
                 Debug.Log($"<color=cyan>[EventBus] InterventionTriggered -> {type}</color>");
         }
 
-        private void LogSuccessFeedback()
+        private void LogGrowthProgress(float progress)
         {
             if (logEvents)
-                Debug.Log("<color=green>[EventBus] PlaySuccessFeedback</color>");
+                Debug.Log($"<color=lime>[EventBus] GrowthProgressChanged -> {progress:P0}</color>");
         }
 
-        private void LogCorrectionFeedback()
+        private void LogGuideSpoke(GuidePersonality personality, string message)
         {
             if (logEvents)
-                Debug.Log("<color=orange>[EventBus] PlayCorrectionFeedback</color>");
+                Debug.Log($"<color=orange>[EventBus] GuideSpoke ({personality}) -> {message}</color>");
         }
 
         /// <summary>
