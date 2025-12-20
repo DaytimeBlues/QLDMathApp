@@ -114,6 +114,14 @@ namespace QLDMathApp.Modules.Subitising
             }
         }
 
+        /// <summary>
+        /// Public API for AnswerButtonGroup to call when an answer is selected.
+        /// </summary>
+        public void OnAnswerSelected(int value)
+        {
+            OnNumberSelected(value);
+        }
+
         private IEnumerator SuccessRoutine()
         {
             if (successEffect != null) successEffect.Play();

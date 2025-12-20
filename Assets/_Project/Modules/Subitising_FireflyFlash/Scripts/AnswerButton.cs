@@ -57,8 +57,8 @@ namespace QLDMathApp.Modules.Subitising
             if (theme != null)
             {
                 buttonImage.color = new Color(0.1f, 0.1f, 0.1f, theme.panelAlpha);
-                if (outlineImage != null) outlineImage.color = theme.hexBorderColor;
-                numberText.color = theme.terminalTextColor;
+                if (outlineImage != null) outlineImage.color = theme.vineBorderColor;
+                numberText.color = theme.primaryTextColor;
             }
             
             _rectTransform.anchoredPosition = _originalPosition;
