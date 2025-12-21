@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using QLDMathApp.UI.Events;
 using QLDMathApp.UI.Services;
+using QLDMathApp.Architecture.Services;
 
 namespace QLDMathApp.UI
 {

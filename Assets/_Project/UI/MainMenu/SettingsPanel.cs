@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using QLDMathApp.Architecture.UI;
+using QLDMathApp.Architecture.Services;
 
 namespace QLDMathApp.UI
 {
@@ -40,11 +41,11 @@ namespace QLDMathApp.UI
         private void Start()
         {
             // Load current settings
-            if (AccessibilitySettings.Instance != null)
+            if (AccessibilitySettingsService.Instance != null)
             {
-                zenModeToggle.isOn = AccessibilitySettings.Instance.ZenMode;
-                highContrastToggle.isOn = AccessibilitySettings.Instance.HighContrast;
-                reducedMotionToggle.isOn = AccessibilitySettings.Instance.ReducedMotion;
+                zenModeToggle.isOn = AccessibilitySettingsService.Instance.ZenMode;
+                highContrastToggle.isOn = AccessibilitySettingsService.Instance.HighContrast;
+                reducedMotionToggle.isOn = AccessibilitySettingsService.Instance.ReducedMotion;
             }
 
             // Setup listeners
@@ -62,9 +63,9 @@ namespace QLDMathApp.UI
 
         private void OnZenModeChanged(bool isOn)
         {
-            if (AccessibilitySettings.Instance != null)
+            if (AccessibilitySettingsService.Instance != null)
             {
-                AccessibilitySettings.Instance.SetZenMode(isOn);
+                AccessibilitySettingsService.Instance.SetZenMode(isOn);
             }
             
             PlayToggleSound(isOn);
@@ -79,9 +80,9 @@ namespace QLDMathApp.UI
 
         private void OnHighContrastChanged(bool isOn)
         {
-            if (AccessibilitySettings.Instance != null)
+            if (AccessibilitySettingsService.Instance != null)
             {
-                AccessibilitySettings.Instance.SetHighContrast(isOn);
+                AccessibilitySettingsService.Instance.SetHighContrast(isOn);
             }
             
             PlayToggleSound(isOn);
@@ -95,9 +96,9 @@ namespace QLDMathApp.UI
 
         private void OnReducedMotionChanged(bool isOn)
         {
-            if (AccessibilitySettings.Instance != null)
+            if (AccessibilitySettingsService.Instance != null)
             {
-                AccessibilitySettings.Instance.SetReducedMotion(isOn);
+                AccessibilitySettingsService.Instance.SetReducedMotion(isOn);
             }
             
             PlayToggleSound(isOn);
