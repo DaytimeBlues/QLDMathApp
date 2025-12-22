@@ -2,13 +2,13 @@ using UnityEngine;
 using QLDMathApp.Architecture.Events;
 using QLDMathApp.Architecture.Data;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace QLDMathApp.Architecture.Services
 {
     /// <summary>
     /// DIRECTOR SYSTEM: Controls Programmatic Leveling.
     /// Analyzes the last N interactions to decide the next difficulty.
+    /// PERFORMANCE: Uses incremental tracking instead of LINQ to avoid GC allocations.
     /// </summary>
     public class ProgressionService : MonoBehaviour
     {
@@ -18,6 +18,10 @@ namespace QLDMathApp.Architecture.Services
 
         private Queue<bool> _accuracyHistory = new Queue<bool>();
         private Queue<float> _timeHistory = new Queue<float>();
+        
+        // PERFORMANCE: Running totals for incremental calculation
+        private int _correctCount = 0;
+        private float _totalTime = 0f;
 
         private void OnEnable()
         {
@@ -31,14 +35,22 @@ namespace QLDMathApp.Architecture.Services
 
         private void RecordPerformance(bool isCorrect, float timeMs)
         {
+            // PERFORMANCE: Update running totals when dequeuing
             if (_accuracyHistory.Count >= analysisWindowSize)
             {
-                _accuracyHistory.Dequeue();
-                _timeHistory.Dequeue();
+                bool oldAccuracy = _accuracyHistory.Dequeue();
+                float oldTime = _timeHistory.Dequeue();
+                
+                if (oldAccuracy) _correctCount--;
+                _totalTime -= oldTime;
             }
 
+            // Add new data and update running totals
             _accuracyHistory.Enqueue(isCorrect);
             _timeHistory.Enqueue(timeMs);
+            
+            if (isCorrect) _correctCount++;
+            _totalTime += timeMs;
 
             AnalyzeAndDirect();
         }
@@ -47,8 +59,9 @@ namespace QLDMathApp.Architecture.Services
         {
             if (_accuracyHistory.Count < 3) return; // Need more data
 
-            float accuracy = (float)_accuracyHistory.Count(a => a) / _accuracyHistory.Count;
-            float avgTime = _timeHistory.Average();
+            // PERFORMANCE: Use running totals instead of LINQ
+            float accuracy = (float)_correctCount / _accuracyHistory.Count;
+            float avgTime = _totalTime / _timeHistory.Count;
 
             // LOGIC: Structural Hybridization Driver
             if (accuracy > 0.8f && avgTime < fluencyTimeThreshold)
@@ -72,6 +85,8 @@ namespace QLDMathApp.Architecture.Services
         {
             _accuracyHistory.Clear();
             _timeHistory.Clear();
+            _correctCount = 0;
+            _totalTime = 0f;
         }
     }
 }

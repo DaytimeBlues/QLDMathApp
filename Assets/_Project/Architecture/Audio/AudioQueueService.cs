@@ -23,6 +23,9 @@ namespace QLDMathApp.Architecture.Audio
         private Queue<AudioRequest> _queue = new Queue<AudioRequest>();
         private Coroutine _playRoutine;
         private bool _isPlaying;
+        
+        // PERFORMANCE: Cached yield instruction to avoid GC allocation in loop
+        private WaitForSeconds _clipDelay;
 
         public bool IsPlaying => _isPlaying;
 
@@ -36,6 +39,9 @@ namespace QLDMathApp.Architecture.Audio
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            
+            // PERFORMANCE: Cache yield instruction
+            _clipDelay = new WaitForSeconds(delayBetweenClips);
 
             // Create audio source if not assigned
             if (narrationSource == null)
@@ -133,8 +139,8 @@ namespace QLDMathApp.Architecture.Audio
 
                 request.OnComplete?.Invoke();
 
-                // Delay between clips for comprehension
-                yield return new WaitForSeconds(delayBetweenClips);
+                // PERFORMANCE: Use cached yield instruction
+                yield return _clipDelay;
             }
 
             _isPlaying = false;

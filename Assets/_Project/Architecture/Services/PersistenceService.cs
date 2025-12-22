@@ -2,13 +2,12 @@ using UnityEngine;
 using System;
 using System.IO;
 using System.Collections;
-using System.Threading.Tasks;
 
 namespace QLDMathApp.Architecture.Services
 {
     /// <summary>
     /// PERSISTENCE SERVICE: Handles secure storage to local filesystem.
-    /// AUDIT FIX: Replaces PlayerPrefs with JSON files in PersistentDataPath.
+    /// PERFORMANCE FIX: Uses dirty flag and end-of-frame batching to reduce I/O.
     /// </summary>
     public class PersistenceService : MonoBehaviour, IInitializable
     {
@@ -16,6 +15,11 @@ namespace QLDMathApp.Architecture.Services
 
         private string _savePath;
         public bool IsInitialized { get; private set; }
+
+        // PERFORMANCE: Cached data and dirty flag for deferred writes
+        private AppUserData _cachedData;
+        private bool _isDirty = false;
+        private Coroutine _saveCoroutine;
 
         private void Awake()
         {
@@ -33,26 +37,47 @@ namespace QLDMathApp.Architecture.Services
 
         public IEnumerator Initialize()
         {
-            // Prepare directory if needed (should exist by default in persistentDataPath)
+            // Load data into cache on init
+            _cachedData = LoadFromDisk<AppUserData>();
             yield return null;
             IsInitialized = true;
             Debug.Log($"[PersistenceService] Target: {_savePath}");
         }
 
-        public void Save<T>(T data)
+        /// <summary>
+        /// PERFORMANCE: Marks data as dirty and schedules end-of-frame save.
+        /// Multiple saves in same frame are batched into one I/O operation.
+        /// </summary>
+        public void Save<T>(T data) where T : AppUserData
         {
-            try
+            _cachedData = data;
+            _isDirty = true;
+
+            // Schedule deferred save if not already pending
+            if (_saveCoroutine == null)
             {
-                string json = JsonUtility.ToJson(data, true);
-                File.WriteAllText(_savePath, json);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[PersistenceService] Save failed: {e.Message}");
+                _saveCoroutine = StartCoroutine(DeferredSaveRoutine());
             }
         }
 
-        public T Load<T>() where T : new()
+        /// <summary>
+        /// PERFORMANCE: Returns cached data immediately (no I/O).
+        /// </summary>
+        public T Load<T>() where T : AppUserData, new()
+        {
+            if (_cachedData != null)
+            {
+                return (T)_cachedData;
+            }
+            
+            _cachedData = LoadFromDisk<T>();
+            return (T)_cachedData;
+        }
+
+        /// <summary>
+        /// Actual disk read - only called on first load or after clear.
+        /// </summary>
+        private T LoadFromDisk<T>() where T : new()
         {
             try
             {
@@ -67,6 +92,50 @@ namespace QLDMathApp.Architecture.Services
                 Debug.LogError($"[PersistenceService] Load failed: {e.Message}");
             }
             return new T();
+        }
+
+        /// <summary>
+        /// PERFORMANCE: Waits until end of frame, then writes if dirty.
+        /// Batches multiple Save() calls into single I/O operation.
+        /// </summary>
+        private IEnumerator DeferredSaveRoutine()
+        {
+            yield return new WaitForEndOfFrame();
+
+            if (_isDirty && _cachedData != null)
+            {
+                try
+                {
+                    string json = JsonUtility.ToJson(_cachedData, true);
+                    File.WriteAllText(_savePath, json);
+                    _isDirty = false;
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"[PersistenceService] Save failed: {e.Message}");
+                }
+            }
+
+            _saveCoroutine = null;
+        }
+
+        /// <summary>
+        /// Force immediate save - use only during app quit.
+        /// </summary>
+        private void OnApplicationQuit()
+        {
+            if (_isDirty && _cachedData != null)
+            {
+                try
+                {
+                    string json = JsonUtility.ToJson(_cachedData, true);
+                    File.WriteAllText(_savePath, json);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"[PersistenceService] Emergency save failed: {e.Message}");
+                }
+            }
         }
     }
 

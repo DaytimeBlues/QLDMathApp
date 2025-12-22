@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using System;
+using System.Collections.Generic;
 using QLDMathApp.Architecture.UI;
 
 namespace QLDMathApp.Modules.Counting
@@ -32,6 +33,9 @@ namespace QLDMathApp.Modules.Counting
         private AudioSource _audioSource;
         private bool _isDragging;
         private Vector3 _originalScale;
+        
+        // PERFORMANCE: Cached list to avoid GC allocation on every drag end
+        private readonly List<RaycastResult> _raycastResults = new List<RaycastResult>();
         
         public event Action<DraggableItem> OnConnectionEstablished; // Renamed from OnDroppedInLunchbox
         public event Action<DraggableItem> OnConnectionFailed;    // Renamed from OnDroppedOutside
@@ -100,12 +104,12 @@ namespace QLDMathApp.Modules.Counting
                 _audioSource.PlayOneShot(dropSound);
             }
             
-            // Check if dropped on Lunchbox Slot
-            var results = new System.Collections.Generic.List<RaycastResult>();
-            EventSystem.current.RaycastAll(eventData, results);
+            // PERFORMANCE: Reuse cached list instead of allocating new one
+            _raycastResults.Clear();
+            EventSystem.current.RaycastAll(eventData, _raycastResults);
             
             bool connectedToPlug = false;
-            foreach (var result in results)
+            foreach (var result in _raycastResults)
             {
                 if (result.gameObject.GetComponent<LunchboxSlot>() != null)
                 {

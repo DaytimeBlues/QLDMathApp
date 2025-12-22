@@ -64,14 +64,26 @@ namespace QLDMathApp.Architecture.Data
 
         /// <summary>
         /// Get the next appropriate problem based on current skill and performance.
+        /// PERFORMANCE: Uses simple loop instead of LINQ to avoid GC allocations.
         /// </summary>
         public MathProblemSO GetNextProblem(SkillId currentSkill, float targetDifficulty)
         {
-            var candidates = GetBySkill(currentSkill)
-                .OrderBy(p => Mathf.Abs(p.difficultyRating - targetDifficulty))
-                .ToList();
+            MathProblemSO closest = null;
+            float minDistance = float.MaxValue;
 
-            return candidates.Count > 0 ? candidates[0] : null;
+            foreach (var problem in allProblems)
+            {
+                if (problem.skillId != currentSkill) continue;
+                
+                float distance = Mathf.Abs(problem.difficultyRating - targetDifficulty);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    closest = problem;
+                }
+            }
+
+            return closest;
         }
 
         /// <summary>

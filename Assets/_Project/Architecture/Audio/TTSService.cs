@@ -155,11 +155,15 @@ namespace QLDMathApp.Architecture.Audio
             _onComplete?.Invoke();
         }
 
+        // PERFORMANCE: Static readonly array to avoid allocation on every call
+        private static readonly string[] NumberWords = { 
+            "One", "Two", "Three", "Four", "Five", 
+            "Six", "Seven", "Eight", "Nine", "Ten" 
+        };
+
         private string GetNumberWord(int number)
         {
-            string[] words = { "One", "Two", "Three", "Four", "Five", 
-                              "Six", "Seven", "Eight", "Nine", "Ten" };
-            return words[number - 1];
+            return NumberWords[number - 1];
         }
 
         /// <summary>
