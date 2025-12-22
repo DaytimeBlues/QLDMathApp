@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using QLDMathApp.Architecture.Audio;
 using QLDMathApp.Architecture.Data;
+using QLDMathApp.Architecture.Services;
 
 namespace QLDMathApp.Bootstrap
 {
