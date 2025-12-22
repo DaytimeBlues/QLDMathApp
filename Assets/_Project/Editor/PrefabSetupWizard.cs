@@ -142,7 +142,7 @@ namespace QLDMathApp.Editor
             
             // Button
             pieceGO.AddComponent<Button>();
-            pieceGO.AddComponent<QLDMathApp.Modules.Patterns.PatternPiece>();
+            pieceGO.AddComponent<QLDMathApp.Modules.Patterns.PatternFlower>();
             
             // Save
             string path = PREFAB_PATH + "PatternPiece.prefab";
