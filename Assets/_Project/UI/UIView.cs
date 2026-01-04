@@ -36,13 +36,13 @@ namespace QLDMathApp.UI
         /// </summary>
         public virtual void Hide()
         {
+            gameObject.SetActive(false);
             if (canvasGroup != null)
             {
                 canvasGroup.alpha = 0f;
                 canvasGroup.interactable = false;
                 canvasGroup.blocksRaycasts = false;
             }
-            gameObject.SetActive(false);
         }
 
         /// <summary>

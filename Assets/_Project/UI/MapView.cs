@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using QLDMathApp.Architecture.Data;
+using QLDMathApp.Architecture.Managers;
 
 namespace QLDMathApp.UI
 {
@@ -76,9 +77,17 @@ namespace QLDMathApp.UI
         {
             if (levelContainer == null) return;
 
+            // Collect children first to avoid modification during iteration
+            var children = new System.Collections.Generic.List<GameObject>();
             foreach (Transform child in levelContainer)
             {
-                Destroy(child.gameObject);
+                children.Add(child.gameObject);
+            }
+
+            // Destroy collected children
+            foreach (var child in children)
+            {
+                Destroy(child);
             }
         }
 
@@ -155,9 +164,9 @@ namespace QLDMathApp.UI
             Debug.Log("[MapView] Back button pressed.");
             
             // Get the GameManager and call NavigateBack
-            if (QLDMathApp.Architecture.Managers.GameManager.Instance != null)
+            if (GameManager.Instance != null)
             {
-                QLDMathApp.Architecture.Managers.GameManager.Instance.NavigateBack();
+                GameManager.Instance.NavigateBack();
             }
         }
 
