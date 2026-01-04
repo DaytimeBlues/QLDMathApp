@@ -18,6 +18,9 @@ namespace QLDMathApp.Architecture.Events
 
         // Nature Guide System Events
         public static Action<GuidePersonality, string> OnGuideSpoke; // Replaces OnAgentFeedbackRequested
+
+        // UI Navigation Events
+        public static Action<string> OnDomainSelected; // Fired when a domain is selected from LandingPage
     }
 
     // UPDATED ENUMS FOR ENCHANTED FOREST

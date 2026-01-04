@@ -23,6 +23,7 @@ namespace QLDMathApp.Testing
             EventBus.OnInterventionTriggered += LogIntervention;
             EventBus.OnGrowthProgressChanged += LogGrowthProgress;
             EventBus.OnGuideSpoke += LogGuideSpoke;
+            EventBus.OnDomainSelected += LogDomainSelected;
         }
 
         private void OnDisable()
@@ -32,6 +33,7 @@ namespace QLDMathApp.Testing
             EventBus.OnInterventionTriggered -= LogIntervention;
             EventBus.OnGrowthProgressChanged -= LogGrowthProgress;
             EventBus.OnGuideSpoke -= LogGuideSpoke;
+            EventBus.OnDomainSelected -= LogDomainSelected;
         }
 
         private void LogGameState(GameState state)
@@ -69,6 +71,12 @@ namespace QLDMathApp.Testing
         {
             if (logEvents)
                 Debug.Log($"<color=orange>[EventBus] GuideSpoke ({personality}) -> {message}</color>");
+        }
+
+        private void LogDomainSelected(string domain)
+        {
+            if (logEvents)
+                Debug.Log($"<color=magenta>[EventBus] DomainSelected -> {domain}</color>");
         }
 
         /// <summary>
